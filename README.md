@@ -23,7 +23,7 @@ Mauro Cicio, Nicholas H.Tollervey and Ben Minton
 
 Add this line to your application's Gemfile:
 
-    gem 'programr'
+    gem 'aiml-engine'
 
 And then execute:
 
@@ -31,7 +31,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install programr
+    $ gem install aiml-engine
 
 You can find a set of ALICE AIML files hosted at http://code.google.com/p/aiml-en-us-foundation-alice
 
