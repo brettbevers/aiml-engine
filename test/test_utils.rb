@@ -1,5 +1,5 @@
 require 'test/unit'
-require 'programr/utils'
+require 'aiml_engine/utils'
 
 class TestFacade < Test::Unit::TestCase
   def setup
