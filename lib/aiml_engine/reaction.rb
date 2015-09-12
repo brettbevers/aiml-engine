@@ -2,7 +2,7 @@ module AimlEngine
 
   class Reaction
 
-    attr_reader :template, :match_group
+    attr_accessor :template, :match_group
 
     def initialize(template, match_group=[])
       @template = template

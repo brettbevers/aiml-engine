@@ -4,9 +4,6 @@ require_relative 'node'
 
 module AimlEngine
 
-  THAT  = '<that>'
-  TOPIC = '<topic>'
-
   class GraphMaster
     attr_reader :graph
 
@@ -29,26 +26,38 @@ module AimlEngine
       graph.inspectNode
     end
 
-    def get_reaction(path)
-      graph.get_reaction(path)
+    def get_reaction(pattern)
+      graph.get_reaction(pattern)
     end
 
-    def render_reaction(path, thinking=false)
+    def render_reaction(pattern, context=nil, thinking: false)
       result = []
-      reaction = get_reaction(path)
+      reaction = get_reaction(pattern)
       template = reaction.render_template
       template.each { |token|
         case token
+          when String
+            result << token
           when Srai
-            binding.pry
-            result << render_reaction(token.to_path)
+            stimulus = token.to_path
+            path = [stimulus, THAT, process_string(context.that), TOPIC, process_string(context.topic)].flatten
+            next_pattern = Pattern.new(path: path, stimulus: stimulus, context: context)
+            result << render_reaction(next_pattern, context, thinking: thinking)
           when Think
             thinking = !thinking
           else
-            result << token.to_s unless thinking
+            r = token.execute(context)
+            result << r unless thinking
         end
       }
       result.join(' ')
+    end
+
+    private
+
+    def process_string(str)
+      return unless str
+      str.strip.upcase.split(/\s+/)
     end
   end
 

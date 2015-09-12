@@ -1,6 +1,8 @@
 require_relative "aiml_engine/version"
-require_relative 'aiml_engine/facade'
 
 module AimlEngine
-
+  THAT    = '<that>'
+  TOPIC   = '<topic>'
+  UNDEF   = 'UNDEF'
+  DEFAULT = 'DEFAULT'
 end

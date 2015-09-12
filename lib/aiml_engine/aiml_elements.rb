@@ -24,16 +24,16 @@ class Category
 
   def get_pattern
     res = ''
-    @pattern.each{|tocken|
-      res += tocken.to_s
+    @pattern.each{|token|
+      res += token.to_s
     }
     return res.split(/\s+/)
   end
   
   def get_that
     res = ''
-    @that.each{|tocken|
-      res += tocken.to_s
+    @that.each{|token|
+      res += token.to_s
     }
     return res.split(/\s+/)
   end
@@ -64,7 +64,7 @@ class Template
 
   def inspect
     res = ''
-    @value.each{|tocken| res += tocken.inspect }
+    @value.each{|token| res += token.inspect }
     res
   end
 end
@@ -81,10 +81,10 @@ class Random
     @conditions[-1].push(aBody)
   end
 
-  def execute
+  def execute(context=nil)
     res = ''
-    @@environment.getRandom(@conditions).each{|tocken|
-      res += tocken.to_s
+    @@environment.get_random(@conditions).each{|token|
+      res += token.to_s
     }
     return res.strip
   end
@@ -117,15 +117,16 @@ class Condition
     end
   end
   
-  def execute
+  def execute(context=nil)
     return '' unless(@@environment.get(@property) =~ /^#{@currentCondition}$/)
     res = ''
-    @conditions[@currentCondition].each{|tocken|
-      res += tocken.to_s
+    @conditions[@currentCondition].each{|token|
+      res += token.to_s
     }
     return res.strip
   end
   alias to_s execute
+
   def inspect()
     "condition -> #{execute}" 
   end
@@ -137,12 +138,12 @@ class ListCondition < Condition
     @property = someAttributes['name'] if(someAttributes.key?('name'))
   end
   
-  def execute
+  def execute(context=nil)
     @conditions.keys.each do |key|
       if(@@environment.get(@property) == key)
         res = ''
-        @conditions[key].each{|tocken|
-        res += tocken.to_s
+        @conditions[key].each{|token|
+        res += token.to_s
       }
       return res.strip
       end
@@ -153,8 +154,7 @@ class ListCondition < Condition
 end
 
 class SetTag
-  @@environment = Environment.new
-  
+
   def initialize(aLocalname,attributes)
     if(attributes.empty?)
       @localname = aLocalname.sub(/^set_/,'')
@@ -168,15 +168,18 @@ class SetTag
     @value.push(aBody)
   end
   
-  def execute
+  def execute(context=nil)
     res = ''
-    @value.each{|tocken|
-      res += tocken.to_s
+    @value.each{|token|
+      res += token.to_s
     }
-    @@environment.set(@localname,res.strip)
+    context.set(@localname,res.strip)
   end
   alias to_s execute
-  def inspect(); "set tag #{@localname} -> #{execute}" end
+
+  def inspect
+    "set tag #{@localname} -> #{execute}"
+  end
 end
 
 class Input
@@ -187,11 +190,12 @@ class Input
     @index = someAttributes['index'].to_i if(someAttributes.key?('index'))
   end
   
-  def execute
-    @@environment.getStimula(@index)
+  def execute(context=nil)
+    @@environment.get_stimulus(@index)
   end
   alias to_s execute
-  def inspect(); "input -> #{@@environment.getStimula(@index)}" end
+
+  def inspect(); "input -> #{@@environment.get_stimulus(@index)}" end
 end
 
 class Star
@@ -203,7 +207,7 @@ class Star
     @index = someAttributes['index'].to_i-1 unless(someAttributes.empty?)
   end
   
-  def execute
+  def execute(context=nil)
     @@environment.send(@star,@index) 
   end
   alias to_s execute
@@ -224,7 +228,7 @@ class ReadOnlyTag
     @attributed   = someAttributes
   end
   
-  def execute
+  def execute(context=nil)
     return @@environment.get(@localname) if(@attributed.empty?)
     @@environment.get(@attributed['name']) 
   end
@@ -235,23 +239,40 @@ class ReadOnlyTag
 end
 
 class Think
-  def initialize(aStatus); @status = aStatus end
+  def initialize(aStatus)
+    @status = aStatus
+  end
 
-  def execute; @status end
+  def execute(context=nil)
+    @status
+  end
   alias to_s execute
-  def inspect(); "think status -> #{@status}" end
+
+  def inspect
+    "think status -> #{@status}"
+  end
 end
 
 class Size
-  def execute; Category.cardinality.to_s end
+  def execute(context=nil)
+    Category.cardinality.to_s
+  end
   alias to_s execute
-  def inspect(); "size -> #{Category.cardinality.to_s}" end
+
+  def inspect
+    "size -> #{Category.cardinality.to_s}"
+  end
 end
 
 class Sys_Date
-  def execute; Date.today.to_s  end
+  def execute(context=nil)
+    Date.today.to_s
+  end
   alias to_s execute
-  def inspect(); "date -> #{Date.today.to_s}" end
+
+  def inspect
+    "date -> #{Date.today.to_s}"
+  end
 end
 
 class Srai
@@ -281,12 +302,16 @@ end
 class Person2
   @@environment = Environment.new
   @@swap = {'me' => 'you', 'you' => 'me'}
-  def initialize; @sentence = [] end
-  def add(anObj); @sentence.push(anObj) end
-  def execute
+  def initialize
+    @sentence = []
+  end
+  def add(anObj)
+    @sentence.push(anObj)
+  end
+  def execute(context=nil)
     res = ''
-    @sentence.each{|tocken|
-      res += tocken.to_s
+    @sentence.each{|token|
+      res += token.to_s
     }
     gender = @@environment.get('gender')
     res.gsub(/\b((with|to|of|for|give|gave|giving) (you|me)|you|i)\b/i){
@@ -322,10 +347,10 @@ class Person
 
   def initialize; @sentence = [] end
   def add(anObj); @sentence.push(anObj) end
-  def execute
+  def execute(context=nil)
     res = ''
-    @sentence.each{|tocken|
-      res += tocken.to_s
+    @sentence.each{|token|
+      res += token.to_s
     }
     gender = @@environment.get('gender')
     res.gsub(/\b(she|he|i|me|my|myself|mine)\b/i){
@@ -339,10 +364,10 @@ end
 class Gender
   def initialize; @sentence = [] end
   def add(anObj); @sentence.push(anObj) end
-  def execute
+  def execute(context=nil)
     res = ''
-    @sentence.each{|tocken|
-      res += tocken.to_s
+    @sentence.each{|token|
+      res += token.to_s
     }
     res.gsub(/\b(she|he|him|his|(for|with|on|in|to) her|her)\b/i){
 
@@ -365,10 +390,18 @@ class Gender
 end
 
 class Command
-  def initialize(text) @command = text end
-  def execute; `#{@command}` end
+  def initialize(text)
+    @command = text
+  end
+
+  def execute(context)
+    `#{@command}`
+  end
   alias to_s execute
-  def inspect() "cmd -> #{@command}" end
+
+  def inspect
+    "cmd -> #{@command}"
+  end
 end
 
 end #AimlEngine

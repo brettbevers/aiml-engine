@@ -2,9 +2,6 @@ require_relative 'reaction'
 
 module AimlEngine
 
-  THAT  = '<that>'
-  TOPIC = '<topic>'
-
   class Node
     attr_reader :children
     attr_accessor :template
@@ -40,27 +37,36 @@ module AimlEngine
       @children[branch].learn(category, path)
     end
 
-    def get_reaction(path)
-      return Reaction.new(template) if remove_context_from_path(path).empty?
+    def get_reaction(pattern)
+      return Reaction.new(template) if pattern.satisfied?(children)
 
-      if @children.key?("_")
-        reaction, index = search_suffixes(path[1..-1], @children["_"])
+      if pattern.start_that_segment? && !children.key?(THAT)
+        topic_segment = pattern.topic_segment
+        reaction = get_reaction(topic_segment)
         return reaction if reaction
       end
 
-      if @children.key?(path[0])
-        reaction = @children[path[0]].get_reaction(path[1..-1])
+      if @children.key?("_") && pattern.key_matchable?
+        reaction, index = search_suffixes(pattern, @children["_"])
         return reaction if reaction
       end
 
-      if @children.key?("*")
-        reaction, index = search_suffixes(path[1..-1], @children["*"])
+      if @children.key?(pattern.key)
+        reaction = @children[pattern.key].get_reaction(pattern.suffix)
         if reaction
-          reaction.match_group = remove_context_from_path(path)[0...index]
+          return reaction
+        elsif pattern.start_context_segment? && pattern.suffix.null_key?
+          return Reaction.new(template)
+        end
+      end
+
+      if @children.key?("*") && pattern.key_matchable?
+        reaction, index = search_suffixes(pattern, @children["*"])
+        if reaction
+          reaction.match_group = pattern.path[0...index]
           return reaction
         else
-          binding.pry
-          return Reaction.new(template, remove_context_from_path(path))
+          return Reaction.new(template, pattern.stimulus)
         end
       end
 
@@ -69,22 +75,12 @@ module AimlEngine
 
     private
 
-    def search_suffixes(path, graph)
-      (0...path.size).each do |index|
-        reaction = graph.get_reaction(path[index..-1])
+    def search_suffixes(pattern, graph)
+      pattern.suffixes.each do |index, suffix|
+        reaction = graph.get_reaction(suffix)
         return reaction, index if reaction
       end
       return nil
-    end
-
-    def remove_context_from_path(path)
-      that_index = path.index(THAT)
-      return [] if that_index == 0
-      topic_index =  path.index(TOPIC)
-      return [] if topic_index == 0
-      return path if that_index.nil? && topic_index.nil?
-      limit = [that_index, topic_index].compact.min
-      return path[0...limit]
     end
 
   end

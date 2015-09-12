@@ -8,12 +8,12 @@ require_relative 'pattern'
 module AimlEngine
   class Facade
 
-    attr_reader :history, :graph_master
+    attr_reader :context, :graph_master
 
     def initialize(cache = nil)
       @graph_master = GraphMaster.new
       @parser       = AimlParser.new(@graph_master)
-      @history      = History.new
+      @context      = History.new
     end
 
     def learn(files)
@@ -34,11 +34,11 @@ module AimlEngine
       Cache::dumping(theCacheFilename,@graph_master)
     end
 
-    def get_reaction(raw_stimulus)
-      history.update_stimulus(raw_stimulus)
-      pattern = Pattern.new(raw_stimulus, history)
-      result = graph_master.render_reaction(pattern.to_path)
-      history.updateResponse(result)
+    def get_reaction(raw_stimulus, context=self.context)
+      context.update_stimulus(raw_stimulus)
+      pattern = Pattern.new(raw_stimulus: raw_stimulus, context: context)
+      result = graph_master.render_reaction(pattern, context)
+      context.update_response(result)
       return result
     end
 

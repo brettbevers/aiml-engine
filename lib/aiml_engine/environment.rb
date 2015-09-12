@@ -21,7 +21,7 @@ class Environment
   end
 
   def set(aTag,aValue)
-    @@history.updateTopic(aValue) if(aTag == 'topic')
+    @@history.update_topic(aValue) if(aTag == 'topic')
     @@readOnlyTags[aTag] = aValue
   end
 
@@ -64,12 +64,12 @@ class Environment
     @@readOnlyTags['question'][rand(@@readOnlyTags['question'].length-1)]
   end
 
-  def getRandom(anArrayofChoices)
+  def get_random(anArrayofChoices)
     anArrayofChoices[rand(anArrayofChoices.length-1)]
   end
 
-  def getStimula(anIndex)
-    @@history.getStimula(anIndex)
+  def get_stimulus(anIndex)
+    @@history.get_stimulus(anIndex)
   end
 end
 end
