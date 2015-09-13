@@ -70,36 +70,43 @@ class Template
 end
 
 class Random
-  @@environment = Environment.new
-  
-  def initialize; @conditions = [] end
-  def setListElement(someAttributes) 
-    @conditions.push([])
+
+  attr_reader :conditions
+
+  def initialize
+    @conditions = []
+  end
+
+  def setListElement(attributes)
+    conditions.push([])
   end
   
-  def add(aBody)
-    @conditions[-1].push(aBody)
+  def add(body)
+    conditions[-1].push(body)
   end
 
   def execute(context=nil)
-    res = ''
-    @@environment.get_random(@conditions).each{|token|
-      res += token.to_s
+    result = ''
+    context.get_random(conditions).each{|token|
+      result += token.to_s
     }
-    return res.strip
+    return result.strip
   end
   alias to_s execute
-  def inspect(); "random -> #{execute}" end
+
+  def inspect
+    "random -> #{conditions}"
+  end
 end
 
 class Condition
   #se c'e' * nel value?
   @@environment = Environment.new
   
-  def initialize(someAttributes)
+  def initialize(attributes)
     @conditions = {}
-    @property = someAttributes['name']
-    @currentCondition = someAttributes['value'].sub('*','.*')
+    @property = attributes['name']
+    @currentCondition = attributes['value'].sub('*','.*')
   end
   
   def add(aBody)
@@ -109,11 +116,11 @@ class Condition
     @conditions[@currentCondition].push(aBody)
   end
 
-  def setListElement(someAttributes)
-    @property = someAttributes['name'] if(someAttributes.key?('name'))
+  def setListElement(attributes)
+    @property = attributes['name'] if(attributes.key?('name'))
     @currentCondition = '_default'
-    if(someAttributes.key?('value'))
-      @currentCondition = someAttributes['value'].sub('*','.*') 
+    if(attributes.key?('value'))
+      @currentCondition = attributes['value'].sub('*','.*')
     end
   end
   
@@ -133,9 +140,9 @@ class Condition
 end
 
 class ListCondition < Condition
-  def initialize(someAttributes)
+  def initialize(attributes)
     @conditions = {}
-    @property = someAttributes['name'] if(someAttributes.key?('name'))
+    @property = attributes['name'] if(attributes.key?('name'))
   end
   
   def execute(context=nil)
@@ -155,86 +162,94 @@ end
 
 class SetTag
 
-  def initialize(aLocalname,attributes)
+  attr_reader :local_name
+
+  def initialize(local_name, attributes)
     if(attributes.empty?)
-      @localname = aLocalname.sub(/^set_/,'')
+      @local_name = local_name.sub(/^set_/,'')
     else
-      @localname = attributes['name']
+      @local_name = attributes['name']
     end
     @value = []
   end
   
-  def add(aBody)
-    @value.push(aBody)
+  def add(body)
+    @value.push(body)
   end
   
   def execute(context=nil)
-    res = ''
+    result = ''
     @value.each{|token|
-      res += token.to_s
+      result += token.to_s
     }
-    context.set(@localname,res.strip)
+    context.set(@local_name,result.strip)
   end
   alias to_s execute
 
   def inspect
-    "set tag #{@localname} -> #{execute}"
+    "set tag #{@local_name}"
   end
+
 end
 
 class Input
-  @@environment = Environment.new
-  
-  def initialize(someAttributes)
-    @index = 1 
-    @index = someAttributes['index'].to_i if(someAttributes.key?('index'))
+
+  def initialize(attributes)
+    @index = (attributes['index'] || 1).to_i
   end
   
   def execute(context=nil)
-    @@environment.get_stimulus(@index)
+    context.get_stimulus(@index)
   end
   alias to_s execute
 
-  def inspect(); "input -> #{@@environment.get_stimulus(@index)}" end
+  def inspect
+    "input stimulus[#{@index}]"
+  end
+
 end
 
 class Star
-  @@environment = Environment.new
 
-  def initialize(aStarName,someAttributes)
-    @star = aStarName
-    @index = 0
-    @index = someAttributes['index'].to_i-1 unless(someAttributes.empty?)
+  attr_reader :star, :index
+
+  def initialize(start_name, attributes)
+    @star = start_name
+    @index = (attributes['index'] || 1).to_i - 1
   end
   
   def execute(context=nil)
-    @@environment.send(@star,@index) 
+    context.send(star, index)
   end
   alias to_s execute
-  def inspect() 
-    return "#{@star} #{@index} -> #{@@environment.send(@star,@index)}" 
+
+  def inspect
+    "#{star} #{index}"
   end
+
 end
 
 class ReadOnlyTag
-  @@environment = Environment.new
 
-  def initialize(aLocalname,someAttributes)
-    @localname    = aLocalname.sub(/^get_/,'')
-    if(someAttributes.key?('index') && @localname == 'that')
-      @localname = 'justbeforethat' if someAttributes['index'] == '2,1'
-      someAttributes = {}
+  attr_reader :name
+
+  def initialize(local_name, attributes)
+    if attributes['index'] == '2,1' && local_name == 'that'
+      @name = 'justbeforethat'
+    elsif attributes['name']
+      @name = attributes['name']
+    else
+      @name = local_name.sub(/^get_/, '')
     end
-    @attributed   = someAttributes
   end
   
   def execute(context=nil)
-    return @@environment.get(@localname) if(@attributed.empty?)
-    @@environment.get(@attributed['name']) 
+    context.get(name)
   end
   alias to_s execute
-  def inspect() 
-    return "roTag #{@localname} -> #{execute}" 
+
+  def inspect
+    "read only tag #{local_name}"
   end
 end
 
@@ -300,7 +315,6 @@ class Srai
 end
 
 class Person2
-  @@environment = Environment.new
   @@swap = {'me' => 'you', 'you' => 'me'}
   def initialize
     @sentence = []
@@ -313,7 +327,7 @@ class Person2
     @sentence.each{|token|
       res += token.to_s
     }
-    gender = @@environment.get('gender')
+    gender = context.get('gender')
     res.gsub(/\b((with|to|of|for|give|gave|giving) (you|me)|you|i)\b/i){
       if($3)
         $2.downcase+' '+@@swap[$3.downcase]
@@ -329,8 +343,7 @@ class Person2
 end
 
 class Person
-  @@environment = Environment.new
-  @@swap = {'male' => {'me'     => 'him', 
+  @@swap = {'male' => {'me'     => 'him',
                        'my'     => 'his', 
                        'myself' => 'himself', 
                        'mine'   => 'his', 
@@ -352,7 +365,7 @@ class Person
     @sentence.each{|token|
       res += token.to_s
     }
-    gender = @@environment.get('gender')
+    gender = context.get('gender')
     res.gsub(/\b(she|he|i|me|my|myself|mine)\b/i){
       @@swap[gender][$1.downcase]
     }
@@ -390,17 +403,20 @@ class Gender
 end
 
 class Command
+
+  attr_reader :command
+
   def initialize(text)
     @command = text
   end
 
   def execute(context)
-    `#{@command}`
+    `#{command}`.strip
   end
   alias to_s execute
 
   def inspect
-    "cmd -> #{@command}"
+    "cmd -> #{command}"
   end
 end
 

@@ -21,7 +21,7 @@ class TestFacade < Minitest::Test
     assert_equal('the UPPERCASE test', @robot.get_reaction('uppercase test'))
     assert_equal('the lowercase test', @robot.get_reaction('LOWERCASE TEST'))
     assert_equal(Date.today.to_s, @robot.get_reaction('DATE TEST'))
-    assert_equal('time:' + `date`.chomp, @robot.get_reaction('SYSTEM TEST'))
+    assert_equal('time: ' + `date`.strip, @robot.get_reaction('SYSTEM TEST'))
     assert_equal(AimlEngine::Category.cardinality.to_s,
                  @robot.get_reaction('SIZE TEST'))
     assert_equal("TEST SPACE", @robot.get_reaction("SPACE TEST"))
