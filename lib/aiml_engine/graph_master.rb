@@ -29,25 +29,25 @@ module AimlEngine
     end
 
     def render_reaction(pattern, context, thinking: false)
+      reaction = get_reaction(pattern)
 
       result = []
-      reaction = get_reaction(pattern)
-      context.with_reaction(reaction) do
-        reaction.template.each { |token|
-          case token
-            when Srai
-              stimulus = token.to_path(context)
-              path = [stimulus, THAT, process_string(context.that), TOPIC, process_string(context.topic)].flatten
-              next_pattern = Pattern.new(path: path, stimulus: stimulus, that: context.that, topic: context.topic)
-              result << render_reaction(next_pattern, context, thinking: thinking)
-            when Think
-              thinking = !thinking
-            else
-              r = token.to_s(context)
-              result << r unless thinking
-          end
-        }
+
+      reaction.render(context) do |token|
+        case token
+          when Srai
+            stimulus = token.to_path(context)
+            path = [stimulus, THAT, process_string(context.that), TOPIC, process_string(context.topic)].flatten
+            next_pattern = Pattern.new(path: path, stimulus: stimulus, that: context.that, topic: context.topic)
+            result << render_reaction(next_pattern, context, thinking: thinking)
+          when Think
+            thinking = !thinking
+          else
+            r = token.to_s(context)
+            result << r unless thinking
+        end
       end
+
       result.join.gsub(/\s+/,' ').strip
     end
 
@@ -57,6 +57,7 @@ module AimlEngine
       return unless str
       str.strip.upcase.split(/\s+/)
     end
+
   end
 
 end

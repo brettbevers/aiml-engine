@@ -214,6 +214,11 @@ Client: I admire robots like you.
     <pattern>This _ you</pattern>
     <template>underscore wins</template>
   </category>
+
+  <category>
+    <pattern>This is clearly you</pattern>
+    <template>explicit pattern does not wins</template>
+  </category>
   
   <category>
     <pattern>This * you</pattern>
@@ -221,7 +226,12 @@ Client: I admire robots like you.
   </category>
 
   <category>
-    <pattern>This is clearly you</pattern>
+    <pattern>This * him</pattern>
+    <template>star does not win</template>>
+  </category>
+
+  <category>
+    <pattern>This is clearly him</pattern>
     <template>explicit pattern wins</template>
   </category>
 

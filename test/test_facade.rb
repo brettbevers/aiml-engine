@@ -56,7 +56,7 @@ class TestFacade < Minitest::Test
     assert_equal('star wins', @robot.get_reaction('This is her'))
     assert_equal('underscore wins', @robot.get_reaction('This is you'))
     assert_equal('explicit pattern wins', 
-                 @robot.get_reaction('This is clearly you'))
+                 @robot.get_reaction('This is clearly him'))
     assert_equal('first star is ARE NEAT AND second star is GOOD AS', 
                  @robot.get_reaction('These are neat and clearly good as them'))
     assert_equal('WHAT IS YOUR FAVORITE FOOTBALL TEAM', 

@@ -48,6 +48,11 @@ module AimlEngine
         return reaction if reaction
       end
 
+      if @children.key?("_") && pattern.key_matchable?
+        reaction, index = search_suffixes(pattern, @children["_"])
+        return reaction if reaction
+      end
+
       if @children.key?(pattern.key)
         reaction = @children[pattern.key].get_reaction(pattern.suffix)
         if reaction
@@ -55,11 +60,6 @@ module AimlEngine
         elsif template && pattern.start_context_segment? && pattern.suffix.null_key?
           return Reaction.new(template)
         end
-      end
-
-      if @children.key?("_") && pattern.key_matchable?
-        reaction, index = search_suffixes(pattern, @children["_"])
-        return reaction if reaction
       end
 
       if @children.key?("*") && pattern.key_matchable?

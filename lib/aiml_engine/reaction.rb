@@ -22,6 +22,12 @@ module AimlEngine
       end
     end
 
+    def render(context)
+      context.with_reaction(self) do
+        template.each { |token| yield token }
+      end
+    end
+
   end
 
 end

@@ -60,7 +60,7 @@ class Template
   end
 
   def add(object)
-    @value << object
+    value << object
   end
 
   def append(text)
@@ -68,9 +68,9 @@ class Template
   end
 
   def inspect
-    res = ''
-    @value.each{|token| res += token.inspect }
-    res
+    result = ''
+    value.each{|token| result += token.inspect }
+    result
   end
 end
 
