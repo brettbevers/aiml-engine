@@ -10,3 +10,5 @@ module AimlEngine
 
   TAGGER = EngTagger.new
 end
+
+require_relative "aiml_engine/facade"

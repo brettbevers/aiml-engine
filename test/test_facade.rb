@@ -2,7 +2,7 @@ require 'pry'
 require 'pry-nav'
 require 'minitest/autorun'
 require 'date'
-require_relative '../lib/aiml_engine/facade'
+require_relative '../lib/aiml_engine'
 
 class TestFacade < Minitest::Test
   def setup
