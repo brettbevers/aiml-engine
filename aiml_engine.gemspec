@@ -15,6 +15,8 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = AimlEngine::VERSION
 
+  gem.add_dependency 'engtagger'
+
   gem.add_development_dependency 'pry'
   gem.add_development_dependency 'pry-nav'
 end

@@ -3,17 +3,24 @@ module AimlEngine
 
     SEGMENTER = /^\s*(.*?)?(\s*(?<!#{THAT})#{THAT}\s+(.*?))?(\s*(?<!#{TOPIC})#{TOPIC}\s+(.*?))?\s*$/
 
-    attr_reader :raw_stimulus, :context
+    attr_accessor :raw_stimulus, :that, :topic, :current_segment
 
-    def initialize(raw_stimulus: nil, context: nil, path: nil, stimulus: nil)
-      @raw_stimulus = raw_stimulus
-      @context = context
-      @path = path
-      @stimulus = stimulus
+    def initialize(raw_stimulus: nil, path: nil, stimulus: nil,
+                   that: [UNDEF], topic: [DEFAULT], current_segment: :stimulus )
+      @raw_stimulus     = raw_stimulus
+      @that             = that.is_a?(String) ? process_string(that) : that
+      @topic            = that.is_a?(String) ? process_string(topic) : topic
+      @path             = path
+      @stimulus         = stimulus
+      @current_segment  = current_segment
     end
 
     def path
-      @path ||= [
+      @path ||= to_path
+    end
+
+    def to_path
+      [
           stimulus,
           THAT, that,
           TOPIC, topic
@@ -21,17 +28,30 @@ module AimlEngine
     end
 
     def stimulus
-      @stimulus ||= process_string(raw_stimulus)
+      @stimulus ||= process_string(raw_stimulus) || []
+    end
+
+    def stimulus=(value)
+      @stimulus = value
+    end
+
+    def add(body)
+      case body
+        when String
+          self.stimulus += process_string(body)
+        else
+          stimulus.push(body)
+      end
+    end
+
+    def key
+      path[0]
     end
 
     def satisfied?(children)
       path.empty? ||
           (start_that_segment? && context_irrelevant?(children)) ||
           (start_topic_segment? && topic_irrelevant?(children))
-    end
-
-    def key
-      path[0]
     end
 
     def start_context_segment?
@@ -63,36 +83,28 @@ module AimlEngine
     end
 
     def suffix
+      return if path.empty?
       @suffix ||= begin
-        p = path[1..-1]     || []
-        s = stimulus[1..-1] || []
-        Pattern.new(path: p, stimulus: s, context: context)
+
+        p  = path[1..-1]     || []
+        s  = stimulus[1..-1] || []
+
+        if start_that_segment?
+          cs = :that
+        elsif start_topic_segment?
+          cs = :topic
+        else
+          cs = current_segment
+        end
+
+        Pattern.new(path: p, stimulus: s, that: that, topic: topic, current_segment: cs)
       end
-    end
-
-    def suffixes
-      return @result if @result
-      @result = {}
-      (1...path.size).each do |index|
-        p = path[index..-1]     || []
-        s = stimulus[index..-1] || []
-        @result[index] = Pattern.new(path: p, stimulus: s, context: context)
-      end
-      @result
-    end
-
-    def that
-      @that ||= process_string(context.that)
-    end
-
-    def topic
-      @topic ||= process_string(context.topic)
     end
 
     def topic_segment
       @topic_segment ||= begin
         p = [TOPIC, topic].flatten
-        Pattern.new( path: p, stimulus: [], context: context)
+        Pattern.new( path: p, stimulus: [], that: that, topic: topic)
       end
     end
 

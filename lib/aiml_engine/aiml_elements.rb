@@ -1,42 +1,47 @@
-require_relative 'environment'
+require_relative 'pattern'
 
 module AimlEngine
 
+  class That
+
+    attr_accessor :path
+
+    def initialize
+      @path = []
+    end
+
+    def add(body)
+      case body
+        when String
+          self.path += body.strip.upcase.split(/\s+/)
+        else
+          path.push(body)
+      end
+    end
+
+  end
+
 class Category
-  attr_accessor :template, :that, :topic
+  attr_accessor :template, :that, :topic, :pattern
 
   @@cardinality = 0
-  def initialize 
-    @@cardinality += 1 
-    @pattern = []
-    @that    = []
-  end
-  
-  def Category.cardinality; @@cardinality end
 
-  def add_pattern(anObj)
-    @pattern.push(anObj)
+  def initialize(topic=nil)
+    @@cardinality += 1
+    @topic = topic.strip.upcase.split(/\s+/) if topic
   end
 
-  def add_that(anObj)
-    @that.push(anObj)
+  def self.cardinality
+    @@cardinality
   end
 
-  def get_pattern
-    res = ''
-    @pattern.each{|token|
-      res += token.to_s
-    }
-    return res.split(/\s+/)
+  def path
+    result = pattern.stimulus
+    result += [THAT, that.path] if that
+    result += [TOPIC, topic]    if topic
+    result.flatten
   end
-  
-  def get_that
-    res = ''
-    @that.each{|token|
-      res += token.to_s
-    }
-    return res.split(/\s+/)
-  end
+
 end
 
 class Template
@@ -71,123 +76,124 @@ end
 
 class Random
 
-  attr_reader :conditions
+  attr_accessor :choices
 
   def initialize
-    @conditions = []
+    @choices = []
   end
 
-  def setListElement(attributes)
-    conditions.push([])
-  end
-  
-  def add(body)
-    conditions[-1].push(body)
+  def add(body, attributes={})
+    if body.is_a?(Array)
+      choices.push body
+    else
+      choices.push [body]
+    end
   end
 
-  def execute(context=nil)
+  def to_s(context=nil)
     result = ''
-    context.get_random(conditions).each{|token|
-      result += token.to_s
-    }
+
+    case choices
+      when Array
+        body = context.get_random(choices)
+        body.each do |token|
+          result += token.to_s(context)
+        end
+      else
+        ary = choices.to_s(context)
+        result += context.get_random( ary )
+    end
+
     return result.strip
   end
-  alias to_s execute
 
   def inspect
-    "random -> #{conditions}"
+    "random -> #{choices}"
   end
+
 end
 
 class Condition
-  #se c'e' * nel value?
-  @@environment = Environment.new
-  
+
+  attr_reader :conditions, :property, :value
+
   def initialize(attributes)
-    @conditions = {}
+    @conditions = Array.new
     @property = attributes['name']
-    @currentCondition = attributes['value'].sub('*','.*')
-  end
-  
-  def add(aBody)
-    unless @conditions[@currentCondition]
-      @conditions[@currentCondition] = []
-    end
-    @conditions[@currentCondition].push(aBody)
+    @value = attributes['value']
   end
 
-  def setListElement(attributes)
-    @property = attributes['name'] if(attributes.key?('name'))
-    @currentCondition = '_default'
-    if(attributes.key?('value'))
-      @currentCondition = attributes['value'].sub('*','.*')
+  def add(body, attributes={})
+    p   = attributes['name'] || property
+    v   = attributes['value'] ? attributes['value'].gsub('*','.*') : value
+    raise 'property or value missing' unless p and v
+    if body.is_a?(Array)
+      conditions.push([p,v,body])
+    else
+      conditions.push([p,v,[body]])
     end
   end
-  
-  def execute(context=nil)
-    return '' unless(@@environment.get(@property) =~ /^#{@currentCondition}$/)
-    res = ''
-    @conditions[@currentCondition].each{|token|
-      res += token.to_s
-    }
-    return res.strip
-  end
-  alias to_s execute
 
-  def inspect()
-    "condition -> #{execute}" 
-  end
-end
-
-class ListCondition < Condition
-  def initialize(attributes)
-    @conditions = {}
-    @property = attributes['name'] if(attributes.key?('name'))
-  end
-  
-  def execute(context=nil)
-    @conditions.keys.each do |key|
-      if(@@environment.get(@property) == key)
-        res = ''
-        @conditions[key].each{|token|
-        res += token.to_s
-      }
-      return res.strip
+  def to_s(context=nil)
+    result = ''
+    conditions.each do |property, value, body|
+      next unless context.get(property) =~ /^#{value}$/
+      body.each do |token|
+        result += token.to_s(context)
       end
     end
-    return ''
+    return result.strip
   end
-  alias to_s execute
+
+  def inspect
+    "condition -> #{conditions}"
+  end
+
+end
+
+class ListItem
+
+  attr_reader :list, :attributes, :template
+
+  def initialize(list, attributes)
+    @list       = list
+    @attributes = attributes
+    @template   = []
+  end
+
+  def add(body)
+    template.push body
+  end
+
+  def add_to_list
+    list.add(template, attributes)
+  end
+
 end
 
 class SetTag
 
-  attr_reader :local_name
+  attr_reader :local_name, :value
 
   def initialize(local_name, attributes)
-    if(attributes.empty?)
-      @local_name = local_name.sub(/^set_/,'')
-    else
-      @local_name = attributes['name']
-    end
+    @local_name = attributes['name'] || local_name.sub(/^set_/,'')
     @value = []
   end
-  
+
   def add(body)
-    @value.push(body)
+    value.push(body)
   end
-  
-  def execute(context=nil)
+
+  def to_s(context=nil)
     result = ''
-    @value.each{|token|
-      result += token.to_s
+    value.each{|token|
+      result += token.to_s(context)
     }
-    context.set(@local_name,result.strip)
+    context.set(local_name, result.strip)
   end
-  alias to_s execute
 
   def inspect
-    "set tag #{@local_name}"
+    "set tag #{local_name} -> #{value}"
   end
 
 end
@@ -197,11 +203,10 @@ class Input
   def initialize(attributes)
     @index = (attributes['index'] || 1).to_i
   end
-  
-  def execute(context=nil)
+
+  def to_s(context=nil)
     context.get_stimulus(@index)
   end
-  alias to_s execute
 
   def inspect
     "input stimulus[#{@index}]"
@@ -215,13 +220,12 @@ class Star
 
   def initialize(start_name, attributes)
     @star = start_name
-    @index = (attributes['index'] || 1).to_i - 1
+    @index = attributes['index'] ? attributes['index'].to_i - 1 : 0
   end
-  
-  def execute(context=nil)
+
+  def to_s(context=nil)
     context.send(star, index)
   end
-  alias to_s execute
 
   def inspect
     "#{star} #{index}"
@@ -242,11 +246,10 @@ class ReadOnlyTag
       @name = local_name.sub(/^get_/, '')
     end
   end
-  
-  def execute(context=nil)
+
+  def to_s(context=nil)
     context.get(name)
   end
-  alias to_s execute
 
   def inspect
     "read only tag #{local_name}"
@@ -258,10 +261,9 @@ class Think
     @status = aStatus
   end
 
-  def execute(context=nil)
+  def to_s(context=nil)
     @status
   end
-  alias to_s execute
 
   def inspect
     "think status -> #{@status}"
@@ -269,10 +271,9 @@ class Think
 end
 
 class Size
-  def execute(context=nil)
+  def to_s(context=nil)
     Category.cardinality.to_s
   end
-  alias to_s execute
 
   def inspect
     "size -> #{Category.cardinality.to_s}"
@@ -280,10 +281,9 @@ class Size
 end
 
 class Sys_Date
-  def execute(context=nil)
+  def to_s(context=nil)
     Date.today.to_s
   end
-  alias to_s execute
 
   def inspect
     "date -> #{Date.today.to_s}"
@@ -304,8 +304,8 @@ class Srai
     text.strip.upcase.split(/\s+/).each(&method(:add))
   end
 
-  def to_path
-    @pattern.map(&:to_s)
+  def to_path(context)
+    @pattern.map{ |token| token.to_s(context).upcase.strip.split(/\s+/) }
   end
 
   def inspect
@@ -315,91 +315,149 @@ class Srai
 end
 
 class Person2
-  @@swap = {'me' => 'you', 'you' => 'me'}
+  PLACE_HOLDER = 'y-o-u'
+  SWAP = {'me' => PLACE_HOLDER, 'i' => PLACE_HOLDER}
+  SWAP_PARSER = /\b(#{SWAP.keys.join('|')})(\b|[^\w])/i
+
+  YOU_PARSER = /\byou\b(\s*)(\b\w+\b)?/i
+
+  attr_reader :sentence
+
   def initialize
     @sentence = []
   end
-  def add(anObj)
-    @sentence.push(anObj)
+
+  def add(object)
+    sentence.push(object)
   end
-  def execute(context=nil)
-    res = ''
-    @sentence.each{|token|
-      res += token.to_s
+
+  def to_s(context=nil)
+    result = ''
+    sentence.each{|token|
+      result += token.to_s(context)
     }
-    gender = context.get('gender')
-    res.gsub(/\b((with|to|of|for|give|gave|giving) (you|me)|you|i)\b/i){
-      if($3)
-        $2.downcase+' '+@@swap[$3.downcase]
-      elsif($1.downcase == 'you')
-        'i'
-      elsif($1.downcase == 'i')
-        'you'
+    result.gsub!(SWAP_PARSER){
+      SWAP[$1.downcase]
+    }
+
+    result.gsub!(YOU_PARSER){
+      space = $1
+      next_word = $2
+      if next_word && (TAGGER.add_tags(next_word) =~ /^<(md|v\w*)>#{next_word}/i)
+        "i#{space}#{next_word}"
+      else
+        "me#{space}#{next_word}"
       end
     }
+
+    result.gsub!(/#{PLACE_HOLDER}/, 'you')
   end
-  alias to_s execute
-  def inspect(); "person2 -> #{execute}" end
+
+  def inspect
+    "person2 -> #{sentence}"
+  end
 end
 
 class Person
-  @@swap = {'male' => {'me'     => 'him',
-                       'my'     => 'his', 
-                       'myself' => 'himself', 
-                       'mine'   => 'his', 
-                       'i'      => 'he', 
-                       'he'     => 'i', 
-                       'she'    => 'i'},
-            'female' => {'me'   => 'her', 
-                         'my'     => 'her', 
-                         'myself' => 'herself',
-	                       'mine'   => 'hers',
-                         'i'      => 'she',
-                         'he'     => 'i',
-                         'she'    => 'i'}}
+  SWAP = {'male' => {'me' => 'him',
+                     'my' => 'his',
+                     'myself' => 'himself',
+                     'mine' => 'his',
+                     'i' => 'he',
+                     'he' => 'i',
+                     'she' => 'i'},
+          'female' => {'me' => 'her',
+                       'my' => 'her',
+                       'myself' => 'herself',
+                       'mine' => 'hers',
+                       'i' => 'she',
+                       'he' => 'i',
+                       'she' => 'i'}}
 
-  def initialize; @sentence = [] end
-  def add(anObj); @sentence.push(anObj) end
-  def execute(context=nil)
-    res = ''
+  attr_reader :sentence
+
+  def initialize
+    @sentence = []
+  end
+
+  def add(object)
+    sentence.push(object)
+  end
+
+  def to_s(context=nil)
+    result = ''
     @sentence.each{|token|
-      res += token.to_s
+      result += token.to_s(context)
     }
     gender = context.get('gender')
-    res.gsub(/\b(she|he|i|me|my|myself|mine)\b/i){
-      @@swap[gender][$1.downcase]
+    result.gsub!(/\b(she|he|i|me|my|myself|mine)\b/i){
+      SWAP[gender][$1.downcase]
     }
+    result
   end
-  alias to_s execute
-  def inspect(); "person-> #{execute}" end
+
+  def inspect
+    "person-> #{execute}"
+  end
 end
 
 class Gender
-  def initialize; @sentence = [] end
-  def add(anObj); @sentence.push(anObj) end
-  def execute(context=nil)
-    res = ''
-    @sentence.each{|token|
-      res += token.to_s
-    }
-    res.gsub(/\b(she|he|him|his|(for|with|on|in|to) her|her)\b/i){
 
-    pronoun = $1.downcase
-      if(pronoun == 'she')
-        'he'
-      elsif(pronoun ==  'he')
-        'she'
-      elsif(pronoun ==  'him' || pronoun ==  'his')
-        'her'
-      elsif(pronoun ==  'her')
-        'his'
+  PRONOUN_MAP = {
+      'he' => 'she',
+      'she' => 'he',
+      'herself' => 'himself',
+      'himself' => 'herself',
+      'hisself' => 'herself',
+      'hers' => 'his',
+      'him' => 'her'
+  }
+
+  POSSESIVE_MAP = {
+      'his' => 'her',
+      'her' => 'his'
+  }
+
+  NOUN_MAP = {
+      'his' => 'hers',
+      'her' => 'him'
+  }
+
+  PRONOUN_PARSER = /\b(#{PRONOUN_MAP.keys.join('|')})\b/i
+  HIS_HER_PARSER = /\b(his|her)\b(\s*)(\b\w*\b)?/i
+
+  attr_accessor :sentence
+
+  def initialize
+    @sentence = []
+  end
+
+  def add(object)
+    sentence.push(object)
+  end
+
+  def to_s(context=nil)
+    result = ''
+    sentence.each{|token|
+      result += token.to_s(context)
+    }
+    result.gsub!(PRONOUN_PARSER){ PRONOUN_MAP[$1.downcase] }
+    result.gsub!(HIS_HER_PARSER){
+      pronoun   = $1.downcase
+      space     = $2
+      next_word = $3
+      if next_word && (TAGGER.add_tags(next_word) =~ /^<n\w+>#{next_word}/i)
+        "#{POSSESIVE_MAP[pronoun]}#{space}#{next_word}"
       else
-        $2.downcase + ' ' + 'him'
+        "#{NOUN_MAP[pronoun]}#{space}#{next_word}"
       end
     }
+    result
   end
-  alias to_s execute
-  def inspect(); "gender -> #{execute}" end
+
+  def inspect
+    "gender -> #{sentence}"
+  end
 end
 
 class Command
@@ -410,10 +468,9 @@ class Command
     @command = text
   end
 
-  def execute(context)
+  def to_s(context)
     `#{command}`.strip
   end
-  alias to_s execute
 
   def inspect
     "cmd -> #{command}"

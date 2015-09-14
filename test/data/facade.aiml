@@ -92,7 +92,7 @@ Client: I admire robots like you.
  <category> 
   <pattern>I AM BLOND</pattern> 
   <template>You sound very
-   <condition name="gender" value="*emale">attractive.</condition> 
+   <condition name="gender" value="female">attractive.</condition>
    <condition name="gender" value="male">handsome.</condition> 
   </template> 
  </category>
@@ -217,7 +217,7 @@ Client: I admire robots like you.
   
   <category>
     <pattern>This * you</pattern>
-    <template>star does not win</template>
+    <template>star does not win</template>>
   </category>
 
   <category>

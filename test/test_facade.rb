@@ -21,15 +21,17 @@ class TestFacade < Minitest::Test
     assert_equal('the UPPERCASE test', @robot.get_reaction('uppercase test'))
     assert_equal('the lowercase test', @robot.get_reaction('LOWERCASE TEST'))
     assert_equal(Date.today.to_s, @robot.get_reaction('DATE TEST'))
-    assert_equal('time: ' + `date`.strip, @robot.get_reaction('SYSTEM TEST'))
+    assert_equal('time:' + `date`.strip, @robot.get_reaction('SYSTEM TEST'))
     assert_equal(AimlEngine::Category.cardinality.to_s,
                  @robot.get_reaction('SIZE TEST'))
     assert_equal("TEST SPACE", @robot.get_reaction("SPACE TEST"))
-    assert_equal('tiresia', @robot.get_reaction('get test 1'))
+    assert_equal('infobot', @robot.get_reaction('get test 1'))
     assert_equal('TEST SPACE', @robot.get_reaction('justbeforethat tag test'))
     assert_equal('TEST SPACE', @robot.get_reaction('that tag test'))
-    assert_equal('are you never tired to do the same things every day?', 
-                 @robot.get_reaction('question test'))
+    assert_includes(
+        ['are you never tired to do the same things every day?', 'Say something nice to me'],
+        @robot.get_reaction('question test')
+    )
     assert_equal('localhost', @robot.get_reaction('get test 2'))
     assert_equal('ok.', @robot.get_reaction('think test. i am male'))
     assert_equal('male.female.female', @robot.get_reaction('test set'))
@@ -39,11 +41,11 @@ class TestFacade < Minitest::Test
     assert_equal('The sentence test', @robot.get_reaction('sentence test'))
     assert_equal('The Formal Test', @robot.get_reaction('formal test'))
     assert_equal('A', @robot.get_reaction('random test'))
-    assert_equal('RANDOM TEST.FORMAL TEST', @robot.get_reaction('test input'))
+    assert_equal('random test.formal test', @robot.get_reaction('test input'))
     assert_equal(
               'she told to him to take a hike but her ego was too much for him',
                  @robot.get_reaction('test gender'))
-    assert_equal('she TOLD to him', 
+    assert_equal('she TOLD TO him',
                  @robot.get_reaction('gender test 2 he told to her'))
     assert_equal(
            'she TOLD MAURO EVERYTHING OK WITH her PROBLEM BUT i answers no', 

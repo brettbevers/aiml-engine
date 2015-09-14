@@ -11,90 +11,77 @@ class AimlParser
 
   def parse(aiml)
     @parser = REXML::Parsers::SAX2Parser.new(aiml)
-    category         = nil
     openLabels       = []
-    patternIsOpen    = false
-    thatIsOpen       = false
-    currentSetLabel  = nil
-    currentCondition = nil
-    currentSrai      = nil
-    currentGender    = nil
     currentPerson    = nil
     currentPerson2   = nil
     currentTopic     = nil
 
-    @parser.listen(%w{ category }){|uri,localname,qname,attributes| 
-      category = Category.new
-      category.topic = currentTopic if(currentTopic)
+    @parser.listen(%w{ category }){|uri,local_name,qname,attributes|
+      openLabels.push Category.new(currentTopic || attributes['topic'])
     }
 
-    @parser.listen(['topicstar','thatstar','star']){|u,localname,qn,attributes|
-      openLabels[-1].add(Star.new(localname,attributes))
+    @parser.listen(['topicstar','thatstar','star']){|u,local_name,qn,attributes|
+      openLabels[-1].add(Star.new(local_name, attributes))
     }
 
 ### condition -- random
-    @parser.listen(%w{ condition }){|uri,localname,qname,attributes|
-      if(attributes.key?('value'))
-        currentCondition = Condition.new(attributes)
-      else
-        currentCondition = ListCondition.new(attributes)
-      end
+    @parser.listen(%w{ condition }){|uri,local_name,qname,attributes|
+      currentCondition = Condition.new(attributes)
       openLabels[-1].add(currentCondition)
       openLabels.push(currentCondition)
     }
     
-    @parser.listen(%w{ random }){|uri,localname,qname,attributes|
+    @parser.listen(%w{ random }){|uri,local_name,qname,attributes|
       currentCondition = Random.new
       openLabels[-1].add(currentCondition)
       openLabels.push(currentCondition)
     }
     
     @parser.listen(:characters, %w{ condition }){|text|
-      next if(text =~ /^\s+$/)
-      currentCondition.add(text)
+      openLabels[-1].add(text) unless text =~ /^\s+$/
     }
 
-    @parser.listen(%w{ li }){|uri,localname,qname,attributes|
-      next unless currentCondition
-      currentCondition.setListElement(attributes)
+    @parser.listen(%w{ li }){|uri,local_name,qname,attributes|
+      openLabels.push ListItem.new(openLabels[-1], attributes)
     }
     
     @parser.listen(:characters,%w{ li }){|text|
-      next unless currentCondition
-      currentCondition.add(text)
+      openLabels[-1].add(text)
     }
 
-    @parser.listen(:end_element, ['condition','random']){
-      currentCondition = nil
-      openLabels.pop      
+    @parser.listen(:end_element, %w{ li }){
+      openLabels.pop.add_to_list
+    }
+
+    @parser.listen(:end_element, %w{ condition random }){
+      openLabels.pop
     }
 ### end condition -- random
 
-    @parser.listen([/^get.*/,/^bot_*/,'for_fun',/that$/, 'question']){
-                   |uri,localname,qname,attributes|
+    @parser.listen([/^get.*/, /^bot_*/,'for_fun']){ |uri,local_name,qname,attributes|
       unless(openLabels.empty?)
-        openLabels[-1].add(ReadOnlyTag.new(localname, attributes))
+        openLabels[-1].add(ReadOnlyTag.new(local_name, attributes))
       end
     }
 
-    @parser.listen(['bot','name']){|uri,localname,qname,attributes|
-      if(localname == 'bot')
-        localname = 'bot_'+attributes['name']
+    @parser.listen(%w{ question }){|uri,local_name,qname,attributes|
+      new_random = Random.new
+      new_random.choices = ReadOnlyTag.new(local_name, attributes)
+      openLabels[-1].add(new_random)
+    }
+
+    @parser.listen(['bot','name']){|uri,local_name,qname,attributes|
+      if local_name == 'bot'
+        local_name = 'bot_'+attributes['name']
       else
-        localname = 'bot_name'
+        local_name = 'bot_name'
       end
-      if(patternIsOpen)
-        category.add_pattern(ReadOnlyTag.new(localname, {}))
-      elsif(thatIsOpen)
-        category.add_that(ReadOnlyTag.new(localname, {}))
-      else
-        openLabels[-1].add(ReadOnlyTag.new(localname, {}))
-      end
+      openLabels[-1].add(ReadOnlyTag.new(local_name, {}))
     }
 
 ### set
-    @parser.listen([/^set_*/,'set']){|uri,localname,qname,attributes|
-      setObj = SetTag.new(localname,attributes)    
+    @parser.listen([/^set_*/,'set']){|uri,local_name,qname,attributes|
+      setObj = SetTag.new(local_name,attributes)
       openLabels[-1].add(setObj)
       openLabels.push(setObj)
     }
@@ -109,28 +96,47 @@ class AimlParser
 ### end set
 
 ### pattern
-    @parser.listen(%w{ pattern }){patternIsOpen = true}
-    @parser.listen(:characters,%w{ pattern }){|text| 
-      #TODO verify if case insensitive. Cross check with facade
-      category.add_pattern(text.upcase)
+    @parser.listen(%w{ pattern }){
+      new_pattern = Pattern.new
+      openLabels[-1].pattern = new_pattern
+      openLabels.push new_pattern
     }
-    @parser.listen(:end_element, %w{ pattern }){patternIsOpen = false}
-#end pattern
+    @parser.listen(:characters,%w{ pattern }){|text|
+      openLabels[-1].add(text)
+    }
+    @parser.listen(:end_element, %w{ pattern }){
+      openLabels.pop
+    }
+### end pattern
 
 #### that
-    @parser.listen(%w{ that }){thatIsOpen = true}
-    @parser.listen(:characters,%w{ that }){|text| category.add_that(text)}
-    @parser.listen(:end_element, %w{ that }){thatIsOpen = false}
+    @parser.listen(%w{ that }){ |uri,local_name,qname,attributes|
+      new_that = That.new
+      case openLabels[-1]
+        when Category
+          openLabels[-1].that = new_that
+        else
+          openLabels[-1].add(ReadOnlyTag.new(local_name, attributes))
+      end
+      openLabels.push new_that
+    }
+    @parser.listen(:characters,%w{ that }){|text|
+      openLabels[-1].add(text)
+    }
+    @parser.listen(:end_element, %w{ that }){
+      openLabels.pop
+    }
 ### end that
 
 ### template
-    @parser.listen(%w{ template }){ 
-      category.template = Template.new 
-      openLabels.push(category.template)
+    @parser.listen(%w{ template }){
+      new_template = Template.new
+      openLabels[-1].template = new_template
+      openLabels.push(new_template)
     }
 
     @parser.listen(:characters, %w{ template }){|text|
-      category.template.append(text)
+      openLabels[-1].add(text)
     }
 
     @parser.listen(:end_element, %w{ template }){
@@ -138,8 +144,8 @@ class AimlParser
     }
 ### end template
 
-    @parser.listen(%w{ input }){|uri,localname,qname,attributes|
-      category.template.add(Input.new(attributes))
+    @parser.listen(%w{ input }){|uri,local_name,qname,attributes|
+      openLabels[-1].add(Input.new(attributes))
     }
 
 ### think
@@ -181,17 +187,20 @@ class AimlParser
       openLabels[-1].add(Size.new)
     }
 
-    @parser.listen(%w{ sr }){|uri,localname,qname,attributes|
+    @parser.listen(%w{ sr }){|uri,local_name,qname,attributes|
       openLabels[-1].add(Srai.new(Star.new('star',{})))
     }
 ### srai    
-    @parser.listen(%w{ srai }){|uri,localname,qname,attributes|
+    @parser.listen(%w{ srai }){|uri,local_name,qname,attributes|
       currentSrai = Srai.new
       openLabels[-1].add(currentSrai)
       openLabels.push(currentSrai)
     }
     
     @parser.listen(:characters, %w{ srai }){|text|
+
+
+
       openLabels[-1].append(text)
     }
     
@@ -202,14 +211,14 @@ class AimlParser
 ### end srai
 
 ### gender
-    @parser.listen(%w{ gender }){|uri,localname,qname,attributes|
-      currentGender = Gender.new
-      openLabels[-1].add(currentGender)
-      openLabels.push(currentGender)
+    @parser.listen(%w{ gender }){|uri,local_name,qname,attributes|
+      new_gender = Gender.new
+      openLabels[-1].add(new_gender)
+      openLabels.push(new_gender)
     }
     
     @parser.listen(:characters, %w{ gender }){|text|
-      currentGender.add(text)
+      openLabels[-1].add(text)
     }
 
     @parser.listen(:end_element, %w{ gender }){
@@ -219,7 +228,7 @@ class AimlParser
 ### end gender
 
 ### person
-    @parser.listen(%w{ person }){|uri,localname,qname,attributes|
+    @parser.listen(%w{ person }){|uri,local_name,qname,attributes|
       currentPerson = Person.new
       openLabels[-1].add(currentPerson)
       openLabels.push(currentPerson)
@@ -236,7 +245,7 @@ class AimlParser
 ### end person
 
 ### person2
-    @parser.listen(%w{ person2 }){|uri,localname,qname,attributes|
+    @parser.listen(%w{ person2 }){|uri,local_name,qname,attributes|
       currentPerson2 = Person2.new
       openLabels[-1].add(currentPerson2)
       openLabels.push(currentPerson2)
@@ -250,12 +259,14 @@ class AimlParser
       currentPerson2 = nil
       openLabels.pop
     }
-### end perso2
+### end person2
 
-    @parser.listen(:end_element, %w{ category }){ @learner.learn(category) }
+    @parser.listen(:end_element, %w{ category }){
+      @learner.learn(openLabels.pop)
+    }
 
 ### topic
-    @parser.listen(%w{ topic }){|uri,localname,qname,attributes|
+    @parser.listen(%w{ topic }){|uri,local_name,qname,attributes|
       currentTopic = attributes['name']
     }
     

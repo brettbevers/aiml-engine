@@ -16,10 +16,8 @@ module AimlEngine
     end
 
     def learn(category)
-      path = category.get_pattern
-      path += [THAT] + category.get_that unless (category.get_that).empty?
-      path += [TOPIC] + category.topic.split(/\s+/) if category.topic
-      @graph.learn(category, path)
+
+      @graph.learn(category, category.path.dup)
     end
 
     def to_s
@@ -30,27 +28,27 @@ module AimlEngine
       graph.get_reaction(pattern)
     end
 
-    def render_reaction(pattern, context=nil, thinking: false)
+    def render_reaction(pattern, context, thinking: false)
+
       result = []
       reaction = get_reaction(pattern)
-      template = reaction.render_template
-      template.each { |token|
-        case token
-          when String
-            result << token
-          when Srai
-            stimulus = token.to_path
-            path = [stimulus, THAT, process_string(context.that), TOPIC, process_string(context.topic)].flatten
-            next_pattern = Pattern.new(path: path, stimulus: stimulus, context: context)
-            result << render_reaction(next_pattern, context, thinking: thinking)
-          when Think
-            thinking = !thinking
-          else
-            r = token.execute(context)
-            result << r unless thinking
-        end
-      }
-      result.join(' ')
+      context.with_reaction(reaction) do
+        reaction.template.each { |token|
+          case token
+            when Srai
+              stimulus = token.to_path(context)
+              path = [stimulus, THAT, process_string(context.that), TOPIC, process_string(context.topic)].flatten
+              next_pattern = Pattern.new(path: path, stimulus: stimulus, that: context.that, topic: context.topic)
+              result << render_reaction(next_pattern, context, thinking: thinking)
+            when Think
+              thinking = !thinking
+            else
+              r = token.to_s(context)
+              result << r unless thinking
+          end
+        }
+      end
+      result.join.gsub(/\s+/,' ').strip
     end
 
     private

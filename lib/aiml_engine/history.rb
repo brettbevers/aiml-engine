@@ -1,118 +1,121 @@
+require 'yaml'
+
 module AimlEngine
-class History
+  class History
 
-  DEFAULT_ATTRIBUTES = YAML::load(File.open(File.dirname(__FILE__) + "/../../conf/readOnlyTags.yaml"))
+    DEFAULT_ATTRIBUTES = YAML::load(File.open(File.dirname(__FILE__) + "/../../conf/readOnlyTags.yaml"))
 
-  attr_accessor :topic
-  attr_reader :inputs, :responses, :star_greedy, :that_greedy, :topic_greedy, :environment
-  
-  def initialize(attrs={})
-    @topic          = attrs[:topic]        || AimlEngine::DEFAULT
-    @inputs         = attrs[:inputs]       || []
-    @responses      = attrs[:responses]    || []
-    @star_greedy    = attrs[:star_greedy]  || []
-    @that_greedy    = attrs[:that_greedy]  || []
-    @topic_greedy   = attrs[:topic_greedy] || []
-    @environment    = DEFAULT_ATTRIBUTES
-  end
+    attr_accessor :topic
+    attr_reader :inputs, :responses, :environment, :reactions
 
-  def get(tag)
-    tag = tag.to_sym
-    if environment.key?(tag)
-      environment[tag]
-    elsif tag =~ /that$/
-      send(tag)
-    else
-      ''
+    def initialize(attrs={})
+      @topic = attrs[:topic] || AimlEngine::DEFAULT
+      @inputs = attrs[:inputs] || []
+      @responses = attrs[:responses] || []
+      @reactions = attrs[:reactions] || []
+      @environment = attrs[:environment] || DEFAULT_ATTRIBUTES.dup
     end
-  end
 
-  def set(tag, value)
-    case tag
-      when 'topic'
-        self.topic = value
-      else
-        environment[tag.to_sym] = value
+    def star_greedy
+      return [] unless @reactions[-1]
+      @reactions[-1].star
     end
-  end
-  
-  def that
-    responses[0] || UNDEF
-  end
-  
-  def justbeforethat 
-    responses[1] || UNDEF
-  end
-  
-  def justthat 
-    inputs[0] || UNDEF
-  end
-  
-  def beforethat 
-    inputs[1] || UNDEF
-  end
-  
-  def star(anIndex)
-    return UNDEF unless star_greedy[anIndex]
-    star_greedy[anIndex].join(' ')
-  end
 
-  def thatstar(anIndex)
-    return UNDEF unless that_greedy[anIndex]
-    that_greedy[anIndex].join(' ') 
-  end
-  
-  def topicstar(anIndex)
-    return UNDEF unless topic_greedy[anIndex]
-    topic_greedy[anIndex].join(' ')
-  end
+    def that_greedy
+      return [] unless @reactions[-1]
+      @reactions[-1].that_star
+    end
 
-  def male
-    environment[:gender] = 'male'
-  end
+    def topic_greedy
+      return [] unless @reactions[-1]
+      @reactions[-1].topic_star
+    end
 
-  def female
-    environment[:gender] = 'female'
-  end
-
-  def question
-    get_random(environment[:question])
-  end
-
-  def get_random(anArrayofChoices)
-    anArrayofChoices[rand(anArrayofChoices.length)]
-  end
-
-  def update_response(aResponse)
-    responses.unshift(aResponse)
-  end
-
-  def update_stimulus(raw_stimulus)
-    inputs.unshift(raw_stimulus)
-  end
-
-  def get_stimulus(anIndex)
-    inputs[anIndex]
-  end
-  
-  def updateStarMatches(aStarGreedyArray)
-    @star_greedy = []
-    @that_greedy = []
-    @topicGreedy = []
-    currentGreedy = star_greedy
-    aStarGreedyArray.each do |greedy|
-      if(greedy == '<that>')
-        currentGreedy = that_greedy
-      elsif(greedy == '<topic>')
-        currentGreedy = topic_greedy
-      elsif(greedy == '<newMatch>')
-        currentGreedy.push([])
+    def get(tag)
+      tag = tag.to_s
+      if environment.key?(tag)
+        environment[tag]
+      elsif tag =~ /that$/
+        send(tag)
       else
-        currentGreedy[-1].push(greedy)
+        ''
       end
     end
-  end
 
-end
+    def set(tag, value)
+      case tag
+        when 'topic'
+          self.topic = value
+        else
+          environment[tag.to_s] = value
+      end
+    end
+
+    def that
+      responses[0] || UNDEF
+    end
+
+    def justbeforethat
+      responses[1] || UNDEF
+    end
+
+    def justthat
+      inputs[0] || UNDEF
+    end
+
+    def beforethat
+      inputs[1] || UNDEF
+    end
+
+    def star(index)
+      return UNDEF unless star_greedy[index]
+      star_greedy[index].join(' ')
+    end
+
+    def thatstar(index)
+      return UNDEF unless that_greedy[index]
+      that_greedy[index].join(' ')
+    end
+
+    def topicstar(index)
+      return UNDEF unless topic_greedy[index]
+      topic_greedy[index].join(' ')
+    end
+
+    def male
+      environment[:gender] = 'male'
+    end
+
+    def female
+      environment[:gender] = 'female'
+    end
+
+    def question
+      get_random(environment[:question])
+    end
+
+    def get_random(choices)
+      choices[rand(choices.length)]
+    end
+
+    def update_response(response)
+      responses.unshift(response)
+    end
+
+    def update_stimulus(raw_stimulus)
+      inputs.unshift(raw_stimulus)
+    end
+
+    def get_stimulus(index)
+      inputs[index]
+    end
+
+    def with_reaction(reaction)
+      reactions.push reaction
+      yield
+      reactions.pop
+    end
+
+  end
 end
 

@@ -36,7 +36,7 @@ module AimlEngine
 
     def get_reaction(raw_stimulus, context=self.context)
       context.update_stimulus(raw_stimulus)
-      pattern = Pattern.new(raw_stimulus: raw_stimulus, context: context)
+      pattern = Pattern.new(raw_stimulus: raw_stimulus, that: context.that, topic: context.topic)
       result = graph_master.render_reaction(pattern, context)
       context.update_response(result)
       return result
