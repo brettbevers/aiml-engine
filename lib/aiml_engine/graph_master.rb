@@ -30,6 +30,7 @@ module AimlEngine
 
     def render_reaction(pattern, context, thinking: false)
       reaction = get_reaction(pattern)
+      return unless reaction
 
       result = []
 
