@@ -126,7 +126,7 @@ class Condition
   def add(body, attributes={})
     p   = attributes['name'] || property
     v   = attributes['value'] ? attributes['value'].gsub('*','.*') : value
-    raise 'property or value missing' unless p and v
+    raise 'property missing' unless p
     if body.is_a?(Array)
       conditions.push([p,v,body])
     else
