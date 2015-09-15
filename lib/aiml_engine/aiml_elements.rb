@@ -126,7 +126,6 @@ class Condition
   def add(body, attributes={})
     p   = attributes['name'] || property
     v   = attributes['value'] ? attributes['value'].gsub('*','.*') : value
-    raise 'property missing' unless p
     if body.is_a?(Array)
       conditions.push([p,v,body])
     else
@@ -141,8 +140,9 @@ class Condition
       body.each do |token|
         result += token.to_s(context)
       end
+      return result.strip
     end
-    return result.strip
+    return result
   end
 
   def inspect
