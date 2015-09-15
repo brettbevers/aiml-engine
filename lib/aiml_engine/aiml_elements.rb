@@ -166,6 +166,7 @@ class ListItem
   end
 
   def add_to_list
+    return unless list.is_a?(Random) || list.is_a?(Condition)
     list.add(template, attributes)
   end
 

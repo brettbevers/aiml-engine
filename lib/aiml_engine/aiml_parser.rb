@@ -144,6 +144,10 @@ class AimlParser
     }
 ### end template
 
+    @parser.listen(%w{ br }){
+      openLabels[-1].add("\n")
+    }
+
     @parser.listen(%w{ input }){|uri,local_name,qname,attributes|
       openLabels[-1].add(Input.new(attributes))
     }
