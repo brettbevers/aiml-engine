@@ -1,6 +1,6 @@
 require_relative 'reaction'
 
-module AimlEngine
+module AIML
 
   class Node
     attr_reader :children

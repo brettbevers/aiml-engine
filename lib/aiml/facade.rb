@@ -1,17 +1,17 @@
 require_relative 'graph_master'
-require_relative 'aiml_parser'
+require_relative 'parser'
 require_relative 'history'
 require_relative 'utils'
-require_relative 'pattern'
+require_relative 'tags/pattern'
 
-module AimlEngine
+module AIML
   class Facade
 
     attr_reader :context, :graph_master
 
     def initialize(cache = nil)
       @graph_master = GraphMaster.new
-      @parser       = AimlParser.new(@graph_master)
+      @parser       = Parser.new(@graph_master)
       @context      = History.new
     end
 
@@ -35,7 +35,7 @@ module AimlEngine
 
     def get_reaction(raw_stimulus, context=self.context)
       context.update_stimulus(raw_stimulus)
-      pattern = Pattern.new(raw_stimulus: raw_stimulus, that: context.that, topic: context.topic)
+      pattern = AIML::Tags::Pattern.new(raw_stimulus: raw_stimulus, that: context.that, topic: context.topic)
       result = graph_master.render_reaction(pattern, context)
       context.update_response(result)
       return result

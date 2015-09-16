@@ -1,4 +1,4 @@
-module AimlEngine
+module AIML
   module Cache
   def self.dumping(aFilename,theGraphMaster)
     File.open(aFilename,'w') do |file|
@@ -16,6 +16,7 @@ module AimlEngine
   module AimlFinder
     # Returns an array of aiml files recursively found
     def self.find(files_and_dirs)
+      files_and_dirs = files_and_dirs.is_a?(String) ? [files_and_dirs] : files_and_dirs
       files = []
       files_and_dirs.each{|file|
         if File.file?(file) && (file  =~ /.*\.aiml$/)
@@ -27,4 +28,4 @@ module AimlEngine
       files
     end
   end
-end #module AimlEngine
+end #module AIML

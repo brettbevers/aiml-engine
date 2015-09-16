@@ -1,4 +1,4 @@
-module AimlEngine
+module AIML
 
   class Reaction
 

@@ -2,7 +2,7 @@ require_relative '../aiml_engine'
 require_relative 'aiml_elements'
 require_relative 'node'
 
-module AimlEngine
+module AIML
 
   class GraphMaster
     attr_reader :graph
@@ -36,12 +36,12 @@ module AimlEngine
 
       reaction.render(context) do |token|
         case token
-          when Srai
+          when AIML::Tags::Srai
             stimulus = token.to_path(context)
             path = [stimulus, THAT, process_string(context.that), TOPIC, process_string(context.topic)].flatten
-            next_pattern = Pattern.new(path: path, stimulus: stimulus, that: context.that, topic: context.topic)
+            next_pattern = AIML::Tags::Pattern.new(path: path, stimulus: stimulus, that: context.that, topic: context.topic)
             result << render_reaction(next_pattern, context, thinking: thinking)
-          when Think
+          when AIML::Tags::Think
             thinking = !thinking
           else
             r = token.to_s(context)

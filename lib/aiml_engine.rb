@@ -1,14 +1,17 @@
-require_relative "aiml_engine/version"
+require_relative "version"
 require_relative "string"
 require 'engtagger'
 
-module AimlEngine
+module AIML
   THAT    = '<that>'
   TOPIC   = '<topic>'
   UNDEF   = 'UNDEF'
   DEFAULT = 'DEFAULT'
 
   TAGGER = EngTagger.new
+
+  class TagMismatch < StandardError; end
+  class MissingParentTag < StandardError; end
 end
 
-require_relative "aiml_engine/facade"
+require_relative "aiml/facade"

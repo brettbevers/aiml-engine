@@ -1,6 +1,6 @@
 require 'yaml'
 
-module AimlEngine
+module AIML
   class History
 
     DEFAULT_ATTRIBUTES = YAML::load(File.open(File.dirname(__FILE__) + "/../../conf/readOnlyTags.yaml"))
@@ -9,7 +9,7 @@ module AimlEngine
     attr_reader :inputs, :responses, :environment, :reactions
 
     def initialize(attrs={})
-      @topic = attrs[:topic] || AimlEngine::DEFAULT
+      @topic = attrs[:topic] || AIML::DEFAULT
       @inputs = attrs[:inputs] || []
       @responses = attrs[:responses] || []
       @reactions = attrs[:reactions] || []

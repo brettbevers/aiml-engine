@@ -1,18 +1,20 @@
-module AimlEngine
+module AIML::Tags
   class Pattern
 
-    SEGMENTER = /^\s*(.*?)?(\s*(?<!#{THAT})#{THAT}\s+(.*?))?(\s*(?<!#{TOPIC})#{TOPIC}\s+(.*?))?\s*$/
+    TAG_NAMES = %w{ pattern }
+
+    SEGMENTER = /^\s*(.*?)?(\s*(?<!#{AIML::THAT})#{AIML::THAT}\s+(.*?))?(\s*(?<!#{AIML::TOPIC})#{AIML::TOPIC}\s+(.*?))?\s*$/
 
     attr_accessor :raw_stimulus, :that, :topic, :current_segment
 
     def initialize(raw_stimulus: nil, path: nil, stimulus: nil,
-                   that: [UNDEF], topic: [DEFAULT], current_segment: :stimulus )
-      @raw_stimulus     = raw_stimulus
-      @that             = that.is_a?(String) ? process_string(that) : that
-      @topic            = that.is_a?(String) ? process_string(topic) : topic
-      @path             = path
-      @stimulus         = stimulus
-      @current_segment  = current_segment
+                   that: [AIML::UNDEF], topic: [AIML::DEFAULT], current_segment: :stimulus)
+      @raw_stimulus = raw_stimulus
+      @that = that.is_a?(String) ? process_string(that) : that
+      @topic = that.is_a?(String) ? process_string(topic) : topic
+      @path = path
+      @stimulus = stimulus
+      @current_segment = current_segment
     end
 
     def path
@@ -22,8 +24,8 @@ module AimlEngine
     def to_path
       [
           stimulus,
-          THAT, that,
-          TOPIC, topic
+          AIML::THAT, that,
+          AIML::TOPIC, topic
       ].flatten.compact
     end
 
@@ -59,15 +61,15 @@ module AimlEngine
     end
 
     def start_that_segment?
-      key == THAT
+      key == AIML::THAT
     end
 
     def start_topic_segment?
-      key == TOPIC
+      key == AIML::TOPIC
     end
 
     def null_key?
-      [DEFAULT, UNDEF].include?(key)
+      [AIML::DEFAULT, AIML::UNDEF].include?(key)
     end
 
     def key_matchable?
@@ -75,19 +77,19 @@ module AimlEngine
     end
 
     def context_irrelevant?(children)
-      !children.key?(THAT) && !children.key?(TOPIC)
+      !children.key?(AIML::THAT) && !children.key?(AIML::TOPIC)
     end
 
     def topic_irrelevant?(children)
-      !children.key?(TOPIC)
+      !children.key?(AIML::TOPIC)
     end
 
     def suffix
       return if path.empty?
       @suffix ||= begin
 
-        p  = path[1..-1]     || []
-        s  = stimulus[1..-1] || []
+        p = path[1..-1] || []
+        s = stimulus[1..-1] || []
 
         if start_that_segment?
           cs = :that
@@ -97,19 +99,19 @@ module AimlEngine
           cs = current_segment
         end
 
-        Pattern.new(path: p, stimulus: s, that: that, topic: topic, current_segment: cs)
+        AIML::Tags::Pattern.new(path: p, stimulus: s, that: that, topic: topic, current_segment: cs)
       end
     end
 
     def topic_segment
       @topic_segment ||= begin
-        p = [TOPIC, topic].flatten
-        Pattern.new( path: p, stimulus: [], that: that, topic: topic)
+        p = [AIML::TOPIC, topic].flatten
+        AIML::Tags::Pattern.new(path: p, stimulus: [], that: that, topic: topic)
       end
     end
 
     def default_topic?
-      topic == DEFAULT
+      topic == AIML::DEFAULT
     end
 
     def process_string(str)
@@ -119,3 +121,6 @@ module AimlEngine
 
   end
 end
+
+
+
