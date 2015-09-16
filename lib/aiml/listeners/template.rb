@@ -8,13 +8,17 @@ module AIML::Listeners
     TAG_NAMES = TAGS.map { |klass| klass::TAG_NAMES }.flatten
 
     def start_element(uri, localname, qname, attributes)
-      case localname
+      if AIML::Tags::Template::TAG_NAMES.include?(localname)
+        expect_current_tag_is AIML::Tags::Category
+        template = AIML::Tags::Template.new
+        current_tag.template = template
+        push_tag template
+        return
+      end
 
-        when *AIML::Tags::Template::TAG_NAMES
-          expect_current_tag AIML::Tags::Category
-          template = AIML::Tags::Template.new
-          current_tag.template = template
-          push_tag template
+      return unless open_template?
+
+      case localname
 
         when *AIML::Tags::Star::TAG_NAMES
           add_tag AIML::Tags::Star.new(localname, attributes)
@@ -45,8 +49,30 @@ module AIML::Listeners
       end
     end
 
+    def characters(text)
+      case current_tag
+
+        when AIML::Tags::Condition
+          return if /^\s*$/ === text
+          li = AIML::Tags::ListItem.new('name' => current_tag.property, 'value' => current_tag.value)
+          li.add(text)
+          add_to_tag li
+
+        when AIML::Tags::Random
+          return if /^\s*$/ === text
+          li = AIML::Tags::ListItem.new
+          li.add(text)
+          add_to_tag li
+
+        else
+          super
+
+      end
+    end
+
     def end_element(uri, localname, qname)
-      expect_current_tag *TAGS
+      return unless open_template?
+      expect_current_tag_is localname
       pop_tag
     end
 

@@ -12,7 +12,7 @@ module AIML::Listeners
     end
 
     def end_element(uri, localname, qname)
-      expect_current_tag AIML::Tags::That, AIML::Tags::ReadOnlyTag
+      expect_current_tag_is AIML::Tags::That, AIML::Tags::ReadOnlyTag
       pop_tag
     end
 

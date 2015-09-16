@@ -114,22 +114,14 @@ module AIML::Tags
     end
 
     def add(item)
-      case item
-        when AIML::Tags::ListItem
-          items.push item
-        else
-          li = AIML::Tags::ListItem.new('name' => property, 'value' => value)
-          li.add(item)
-          items.push li
-      end
+      items.push item
     end
 
     def to_s(context=nil)
       items.each do |item|
-        p = property || item.attributes['name']
-        v = (value || item.attributes['value']).gsub('*', '.*?')
-        next unless context.get(p) =~ /^#{v}$/
-        return item.to_s(context)
+        p = item.attributes['name']
+        v = (item.attributes['value'] || '').gsub('*', '.*?')
+        return item.to_s(context) if context.get(p) =~ /^#{v}$/
       end
       return ''
     end
@@ -146,7 +138,7 @@ module AIML::Tags
 
     attr_reader :attributes, :template
 
-    def initialize(attributes)
+    def initialize(attributes={})
       @attributes = attributes
       @template = []
     end
@@ -160,6 +152,7 @@ module AIML::Tags
       template.each do |token|
         result += token.to_s(context)
       end
+      result
     end
 
   end
@@ -369,7 +362,7 @@ module AIML::Tags
       result.gsub!(YOU_PARSER) {
         space = $1
         next_word = $2
-        if next_word && (TAGGER.add_tags(next_word) =~ /^<(md|v\w*)>#{next_word}/i)
+        if next_word && (AIML::TAGGER.add_tags(next_word) =~ /^<(md|v\w*)>#{next_word}/i)
           "i#{space}#{next_word}"
         else
           "me#{space}#{next_word}"
@@ -477,7 +470,7 @@ module AIML::Tags
         pronoun = $1.downcase
         space = $2
         next_word = $3
-        if next_word && (TAGGER.add_tags(next_word) =~ /^<n\w+>#{next_word}/i)
+        if next_word && (AIML::TAGGER.add_tags(next_word) =~ /^<n\w+>#{next_word}/i)
           "#{POSSESIVE_MAP[pronoun]}#{space}#{next_word}"
         else
           "#{NOUN_MAP[pronoun]}#{space}#{next_word}"

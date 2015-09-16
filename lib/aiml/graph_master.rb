@@ -41,11 +41,8 @@ module AIML
             path = [stimulus, THAT, process_string(context.that), TOPIC, process_string(context.topic)].flatten
             next_pattern = AIML::Tags::Pattern.new(path: path, stimulus: stimulus, that: context.that, topic: context.topic)
             result << render_reaction(next_pattern, context, thinking: thinking)
-          when AIML::Tags::Think
-            thinking = !thinking
           else
-            r = token.to_s(context)
-            result << r unless thinking
+            result.push token.to_s(context)
         end
       end
 

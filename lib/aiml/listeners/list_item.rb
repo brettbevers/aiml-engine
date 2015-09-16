@@ -4,21 +4,23 @@ module AIML::Listeners
   class ListItem < Base
 
     def start_element(uri, localname, qname, attributes)
-      case localname
+      case current_tag
 
-        when *AIML::Tags::ListItem::TAG_NAMES
-          add_tag AIML::Tags::ListItem(attributes)
+        when AIML::Tags::Condition
+          attributes['name']  ||= current_tag.property
+          attributes['value'] ||= current_tag.value
+          add_tag AIML::Tags::ListItem.new(attributes)
+
+        when AIML::Tags::Random
+          add_tag AIML::Tags::ListItem.new(attributes)
 
       end
     end
 
     def end_element(uri, localname, qname)
-      case localname
-
-        when *AIML::Tags::ListItem::TAG_NAMES
-          expect_current_tag AIML::Tags::ListItem
+      case current_tag
+        when AIML::Tags::ListItem
           pop_tag
-
       end
     end
 

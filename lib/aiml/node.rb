@@ -36,8 +36,6 @@ module AIML
     end
 
     def get_reaction(pattern)
-      binding.pry if $really_stop
-
       if pattern.satisfied?(children)
         return template ? Reaction.new(template) : nil
       end

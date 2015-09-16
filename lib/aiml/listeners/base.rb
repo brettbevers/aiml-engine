@@ -39,9 +39,24 @@ module AIML::Listeners
       context.pop_tag
     end
 
-    def expect_current_tag(*klasses)
-      unless klasses.reduce(false) { |memo, klass| memo || current_tag.is_a?(klass) }
-        raise AIML::TagMismatch, "expected #{current_tag.inspect} to be #{klass.name}"
+    def open_template?
+      context.open_template?
+    end
+
+    def current_tag_is?(*klasses_and_tag_names)
+      klasses_and_tag_names.reduce(false) { |memo, klass_or_tag_name|
+        memo or case klass_or_tag_name
+                  when String
+                    current_tag.class::TAG_NAMES.reduce(false){ |memo,name| memo || name === klass_or_tag_name }
+                  when Class
+                    current_tag.is_a?(klass_or_tag_name)
+                end
+      }
+    end
+
+    def expect_current_tag_is(*klasses_and_tag_names)
+      unless current_tag_is?(*klasses_and_tag_names)
+        raise AIML::TagMismatch, "expected #{current_tag.inspect} to be #{klasses_and_tag_names}"
       end
     end
   end

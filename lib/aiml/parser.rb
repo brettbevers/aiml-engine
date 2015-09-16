@@ -44,22 +44,18 @@ module AIML
       }
 
       @parser.listen(:end_element, AIML::Tags::Category::TAG_NAMES) {
-        binding.pry unless context.tag.is_a?(AIML::Tags::Category)
         @learner.learn(context.pop_tag)
       }
       ### end category
 
       ### pattern / that / template
-      @parser.listen(AIML::Tags::Pattern::TAG_NAMES,    Listeners::Pattern.new(context))
-
-      @parser.listen(AIML::Tags::That::TAG_NAMES,       Listeners::That.new(context))
-
-      @parser.listen(Listeners::Template::TAG_NAMES,    Listeners::Template.new(context))
+      @parser.listen(AIML::Tags::Pattern::TAG_NAMES, Listeners::Pattern.new(context))
+      @parser.listen(AIML::Tags::That::TAG_NAMES,    Listeners::That.new(context))
+      @parser.listen(Listeners::Template::TAG_NAMES, Listeners::Template.new(context))
       ### end pattern / that / template
 
       ### list item
-      @parser.listen(AIML::Tags::Condition::TAG_NAMES +
-                         AIML::Tags::Random::TAG_NAMES, Listeners::ListItem.new(context))
+      @parser.listen(AIML::Tags::ListItem::TAG_NAMES, Listeners::ListItem.new(context))
       ### end list item
 
       ### gender / person / person2
@@ -152,9 +148,9 @@ module AIML
         open_tags[-1]
       end
 
-      def add_tag(element)
-        add_to_tag element
-        push_tag element
+      def add_tag(tag)
+        add_to_tag tag
+        push_tag tag
       end
 
       def add_to_tag(value)
@@ -166,6 +162,10 @@ module AIML
 
       def open_tags?
         open_tags.any?
+      end
+
+      def open_template?
+        open_tags.reduce(false) { |memo, tag| memo || tag.is_a?(AIML::Tags::Template) }
       end
     end
 
