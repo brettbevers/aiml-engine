@@ -10,8 +10,9 @@ module AIML
 
   TAGGER = EngTagger.new
 
-  class TagMismatch < StandardError; end
-  class MissingParentTag < StandardError; end
+  class TagError < StandardError; end
+  class TagMismatch < TagError; end
+  class MissingParentTag < TagError; end
 end
 
 require_relative "aiml/facade"

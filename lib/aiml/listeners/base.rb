@@ -15,12 +15,16 @@ module AIML::Listeners
       add_to_tag text
     end
 
+    def end_element(uri, localname, qname)
+      pop_tag if current_tag_is? localname
+    end
+
     def current_tag
       context.tag
     end
 
     def current_tag_names
-      current_tag.class::TAG_NAMES
+      current_tag.class.tag_names
     end
 
     def add_to_tag(value)
@@ -43,21 +47,32 @@ module AIML::Listeners
       context.open_template?
     end
 
+    def open_pattern?
+      context.open_pattern?
+    end
+
+    def open_that?
+      context.open_that?
+    end
+
     def current_tag_is?(*klasses_and_tag_names)
-      klasses_and_tag_names.reduce(false) { |memo, klass_or_tag_name|
-        memo or case klass_or_tag_name
-                  when String
-                    current_tag.class::TAG_NAMES.reduce(false){ |memo,name| memo || name === klass_or_tag_name }
-                  when Class
-                    current_tag.is_a?(klass_or_tag_name)
-                end
-      }
+      context.tag_is?(current_tag, *klasses_and_tag_names)
     end
 
     def expect_current_tag_is(*klasses_and_tag_names)
-      unless current_tag_is?(*klasses_and_tag_names)
-        raise AIML::TagMismatch, "expected #{current_tag.inspect} to be #{klasses_and_tag_names}"
-      end
+      context.expect_tag_is(current_tag, *klasses_and_tag_names)
+    end
+
+    def expect_current_tag_is_not(*klasses_and_tag_names)
+      context.expect_tag_is_not(current_tag, *klasses_and_tag_names)
+    end
+
+    def expect_open(*klasses_and_tag_names)
+      context.expect_open(*klasses_and_tag_names)
+    end
+
+    def expect_not_open(*klasses_and_tag_names)
+      context.expect_not_open(*klasses_and_tag_names)
     end
   end
 end

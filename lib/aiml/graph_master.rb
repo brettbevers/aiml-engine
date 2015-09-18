@@ -16,7 +16,6 @@ module AIML
     end
 
     def learn(category)
-
       @graph.learn(category, category.path.dup)
     end
 
@@ -28,7 +27,7 @@ module AIML
       graph.get_reaction(pattern)
     end
 
-    def render_reaction(pattern, context, thinking: false)
+    def render_reaction(pattern, context)
       reaction = get_reaction(pattern)
       return unless reaction
 
@@ -40,7 +39,7 @@ module AIML
             stimulus = token.to_path(context)
             path = [stimulus, THAT, process_string(context.that), TOPIC, process_string(context.topic)].flatten
             next_pattern = AIML::Tags::Pattern.new(path: path, stimulus: stimulus, that: context.that, topic: context.topic)
-            result << render_reaction(next_pattern, context, thinking: thinking)
+            result << render_reaction(next_pattern, context)
           else
             result.push token.to_s(context)
         end

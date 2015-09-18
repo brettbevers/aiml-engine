@@ -1,7 +1,9 @@
 module AIML::Tags
-  class Pattern
+  class Pattern < Base
 
-    TAG_NAMES = %w{ pattern }
+    def self.tag_names
+      %w{ pattern }
+    end
 
     SEGMENTER = /^\s*(.*?)?(\s*(?<!#{AIML::THAT})#{AIML::THAT}\s+(.*?))?(\s*(?<!#{AIML::TOPIC})#{AIML::TOPIC}\s+(.*?))?\s*$/
 
@@ -32,17 +34,18 @@ module AIML::Tags
     def stimulus
       @stimulus ||= process_string(raw_stimulus) || []
     end
+    alias_method :body, :stimulus
 
     def stimulus=(value)
       @stimulus = value
     end
 
-    def add(body)
-      case body
+    def add(object)
+      case object
         when String
-          self.stimulus += process_string(body)
+          self.stimulus += process_string(object)
         else
-          stimulus.push(body)
+          stimulus.push(object)
       end
     end
 
@@ -116,7 +119,10 @@ module AIML::Tags
 
     def process_string(str)
       return unless str
-      str.strip.upcase.split(/\s+/)
+      str.strip.upcase.
+          gsub(/\b[^a-zA-Z0-9_*]+\b/,' ').
+          gsub(/(^[^a-zA-Z0-9_*]+|[^a-zA-Z0-9_*]+$)/,'').
+          split(/\s+/)
     end
 
   end

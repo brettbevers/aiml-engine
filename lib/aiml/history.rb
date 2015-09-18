@@ -49,6 +49,7 @@ module AIML
         else
           environment[tag.to_s] = value
       end
+      return value
     end
 
     def that
