@@ -117,12 +117,16 @@ module AIML::Tags
       topic == AIML::DEFAULT
     end
 
-    def process_string(str)
+    def self.process_string(str)
       return unless str
       str.strip.upcase.
-          gsub(/\b[^a-zA-Z0-9_*]+\b/,' ').
-          gsub(/(^[^a-zA-Z0-9_*]+|[^a-zA-Z0-9_*]+$)/,'').
+          gsub(/\b[^a-zA-Z0-9_*-]+\b/,' ').
+          gsub(/(^[^a-zA-Z0-9_*-]+|[^a-zA-Z0-9_*-]+$)/,'').
           split(/\s+/)
+    end
+
+    def process_string(str)
+      self.class.process_string(str)
     end
 
   end

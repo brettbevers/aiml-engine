@@ -23,7 +23,7 @@ module AIML
         body.each do |item|
           p = item.attributes['name']
           v = (item.attributes['value'] || '').gsub('*', '.*?')
-          return item.to_s(context) if context.get(p) =~ /^#{v}$/
+          return item.to_s(context) if context.get(p) =~ /^#{v}$/i
         end
         return ''
       end

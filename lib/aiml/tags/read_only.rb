@@ -3,15 +3,13 @@ module AIML
     class ReadOnly < Base
 
       def self.tag_names
-        [/^get.*/, /^bot_.*/, 'for_fun', 'bot', 'name', 'that']
+        [/^get.*/, /^bot_.*/, 'for_fun', 'bot', 'name']
       end
 
-      attr_reader :name
+      attr_reader :name, :first_index, :second_index
 
       def initialize(local_name, attributes={})
         case local_name
-          when 'that'
-            @name = (attributes['index'] == '2,1') ? 'justbeforethat' : 'that'
           when 'get'
             @name = attributes['name']
           when 'bot'

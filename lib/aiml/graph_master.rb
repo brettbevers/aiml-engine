@@ -51,8 +51,7 @@ module AIML
     private
 
     def process_string(str)
-      return unless str
-      str.strip.upcase.split(/\s+/)
+      AIML::Tags::Pattern.process_string(str)
     end
 
   end

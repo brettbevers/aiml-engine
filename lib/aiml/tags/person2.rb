@@ -43,6 +43,7 @@ module AIML
         }
 
         result.gsub!(/#{PLACE_HOLDER}/, 'you')
+        result
       end
 
       def inspect

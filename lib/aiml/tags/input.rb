@@ -2,14 +2,28 @@ module AIML
   module Tags
     class Input < Base
 
-      attr_reader :index
+      INDEX_PARSER = /^(\d+),?(\d+|\*)?/
+
+      def self.tag_names
+        %w{ input }
+      end
+
+      attr_reader :first_index, :second_index
 
       def initialize(attributes)
-        @index = (attributes['index'] || 1).to_i
+        index = attributes['index'] || ''
+        INDEX_PARSER === index
+        @first_index  = $1 || 1
+        @second_index = $2 || 1
       end
 
       def to_s(context=nil)
-        context.get_stimulus(index)
+        input = context.get_stimulus(first_index.to_i)
+        if second_index == '*'
+          return input
+        else
+          return input.split(/(\.\?!\n)\s*/)[second_index.to_i-1]
+        end
       end
 
       def inspect

@@ -32,14 +32,15 @@ module AIML::Tags
     end
 
     def render(body, context, eval=false)
-      body.map { |token|
+      body.map! { |token|
         if token.is_a? AIML::Tags::Eval
           render(token.body, context, true)
+          token.body
         elsif eval
           token.to_s(context)
         else
-          if token.respond_to?(:body) && token.respond_to?(:body=)
-            token.body = render(token.body, context)
+          if token.respond_to?(:body)
+            render(token.body, context, eval)
           end
           token
         end

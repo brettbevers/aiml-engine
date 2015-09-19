@@ -7,7 +7,7 @@ module AIML
       end
 
       def initialize
-        @items = [AIML::Tags::ReadOnly.new('question')]
+        @body = [AIML::Tags::ReadOnly.new('question')]
       end
 
     end

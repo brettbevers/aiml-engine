@@ -10,7 +10,7 @@ module AIML
 
       def initialize(star_name, attributes={})
         @star = star_name
-        @index = attributes['index'] ? attributes['index'].to_i - 1 : 0
+        @index = attributes['index'] ? attributes['index'].to_i : 1
       end
 
       def to_s(context=nil)

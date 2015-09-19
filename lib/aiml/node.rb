@@ -40,24 +40,21 @@ module AIML
         return template ? Reaction.new(template) : nil
       end
 
-      if pattern.start_that_segment? && !children.key?(THAT)
-        topic_segment = pattern.topic_segment
-        reaction = get_reaction(topic_segment)
-        return reaction if reaction
-      end
-
       if @children.key?("_") && pattern.key_matchable?
-        reaction, index = search_suffixes(pattern, @children["_"])
-        return reaction if reaction
+        reaction, index = search_suffixes(pattern, @children["_"], greedy: true)
+        if reaction
+          reaction.add_match_group(pattern.current_segment, pattern.path[0...index])
+          return reaction
+        elsif template
+          reaction = Reaction.new(template)
+          reaction.add_match_group(pattern.current_segment, pattern.stimulus)
+          return reaction
+        end
       end
 
       if @children.key?(pattern.key)
         reaction = @children[pattern.key].get_reaction(pattern.suffix)
-        if reaction
-          return reaction
-        elsif template && pattern.start_context_segment? && pattern.suffix.null_key?
-          return Reaction.new(template)
-        end
+        return reaction if reaction
       end
 
       if @children.key?("*") && pattern.key_matchable?
@@ -68,8 +65,18 @@ module AIML
         elsif template
           reaction = Reaction.new(template)
           reaction.add_match_group(pattern.current_segment, pattern.stimulus)
+          return reaction
         end
-        return reaction
+      end
+
+      if pattern.start_that_segment?
+        topic_segment = pattern.topic_segment
+        reaction = get_reaction(topic_segment)
+        return reaction if reaction
+      end
+
+      if pattern.start_topic_segment? && pattern.suffix.null_key? && template
+        return Reaction.new(template)
       end
 
       return nil
@@ -77,16 +84,22 @@ module AIML
 
     private
 
-    def search_suffixes(pattern, graph)
+    def search_suffixes(pattern, graph, greedy: false)
       index = 1
       memo = pattern
       segment = pattern.current_segment
+      current_reaction = nil
+      current_index = nil
       while memo = memo.suffix and memo.current_segment == segment
         reaction = graph.get_reaction(memo)
-        return reaction, index if reaction
+        if reaction
+          current_reaction = reaction
+          current_index = index
+        end
+        return current_reaction, current_index if current_reaction && !greedy
         index += 1
       end
-      return nil
+      return current_reaction, current_index
     end
 
   end

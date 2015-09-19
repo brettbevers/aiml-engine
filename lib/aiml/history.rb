@@ -37,6 +37,8 @@ module AIML
         environment[tag]
       elsif tag =~ /that$/
         send(tag)
+      elsif tag == 'topic'
+        topic
       else
         ''
       end
@@ -52,8 +54,8 @@ module AIML
       return value
     end
 
-    def that
-      responses[0] || UNDEF
+    def that(index=1)
+      responses[index-1] || UNDEF
     end
 
     def justbeforethat
@@ -69,16 +71,19 @@ module AIML
     end
 
     def star(index)
+      index -= 1
       return UNDEF unless star_greedy[index]
       star_greedy[index].join(' ')
     end
 
     def thatstar(index)
+      index -= 1
       return UNDEF unless that_greedy[index]
       that_greedy[index].join(' ')
     end
 
     def topicstar(index)
+      index -= 1
       return UNDEF unless topic_greedy[index]
       topic_greedy[index].join(' ')
     end

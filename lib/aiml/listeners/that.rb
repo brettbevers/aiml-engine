@@ -8,7 +8,7 @@ module AIML::Listeners
           current_tag.that = that
           push_tag that
         elsif open_template?
-          add_tag AIML::Tags::ReadOnly.new(localname, attributes)
+          add_tag AIML::Tags::That.new(attributes)
         end
       end
     end

@@ -12,6 +12,10 @@ module AIML
         @body = [text].compact
       end
 
+      def add(object)
+        body.push object
+      end
+
       def to_s(context)
         body.map{|item| item.to_s(context).gsub(/(\w+)/){ $1.capitalize }.gsub(/\s+/,' ') }.join
       end

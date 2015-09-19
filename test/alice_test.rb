@@ -62,6 +62,13 @@ describe "Alice" do
     ].must_include @alice.get_reaction("How are you?")
   end
 
+  it "implements dynamic category learning" do
+    @alice.get_reaction("YOU SOUND LIKE DATA").must_equal "Yes I am inspired by Commander Data's artificial personality."
+    @alice.get_reaction("I have a dog named 'Winston'.")
+    @alice.get_reaction("bad answer").must_equal "Would you like to teach me a new answer to \"I have a dog named 'Winston'.\"?"
+    @alice.get_reaction("yes").must_equal "OK, what should I have said?"
+    @alice.get_reaction("That is a cool name!").must_equal "\"That is a cool name!...\"? Does this depend on me having just said, \"Yes I am inspired by Commander Data's artificial personality.\"?"
+  end
 
 
 

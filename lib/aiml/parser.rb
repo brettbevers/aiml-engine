@@ -83,7 +83,7 @@ module AIML
       ### end gender / person / person2
 
       ### self-terminating tags
-      @parser.listen(AIML::Tags::ReadOnly.tag_names - %w{ that }) { |uri, local_name, qname, attributes|
+      @parser.listen(AIML::Tags::ReadOnly.tag_names) { |uri, local_name, qname, attributes|
         context.add_to_tag AIML::Tags::ReadOnly.new(local_name, attributes)
       }
 
@@ -91,7 +91,7 @@ module AIML
         context.add_to_tag "\n"
       }
 
-      @parser.listen(%w{ input }) { |uri, local_name, qname, attributes|
+      @parser.listen(AIML::Tags::Input.tag_names - %w{ that }) { |uri, local_name, qname, attributes|
         context.add_to_tag AIML::Tags::Input.new(attributes)
       }
 
@@ -105,20 +105,20 @@ module AIML
       ### end self-terminating tags
 
       ### string manipulation
-      @parser.listen(:characters, AIML::Tags::UpperCase.tag_names) { |text|
-        context.add_to_tag(AIML::Tags::UpperCase.new(text))
+      @parser.listen(:characters, AIML::Tags::UpperCase.tag_names) { |uri, local_name, qname, attributes|
+        context.add_tag(AIML::Tags::UpperCase.new)
       }
 
-      @parser.listen(:characters, AIML::Tags::LowerCase.tag_names) { |text|
-        context.add_to_tag(AIML::Tags::LowerCase.new(text))
+      @parser.listen(:characters, AIML::Tags::LowerCase.tag_names) { |uri, local_name, qname, attributes|
+        context.add_tag(AIML::Tags::LowerCase.new)
       }
 
-      @parser.listen(:characters, AIML::Tags::Formal.tag_names) { |text|
-        context.add_to_tag(AIML::Tags::Formal.new(text))
+      @parser.listen(:characters, AIML::Tags::Formal.tag_names) { |uri, local_name, qname, attributes|
+        context.add_tag(AIML::Tags::Formal.new)
       }
 
-      @parser.listen(:characters, AIML::Tags::Sentence.tag_names) { |text|
-        context.add_to_tag(AIML::Tags::Sentence.new(text))
+      @parser.listen(:characters, AIML::Tags::Sentence.tag_names) { |uri, local_name, qname, attributes|
+        context.add_tag(AIML::Tags::Sentence.new)
       }
       ### end string manipulation
 
