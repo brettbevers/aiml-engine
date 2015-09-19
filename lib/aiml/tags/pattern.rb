@@ -120,8 +120,8 @@ module AIML::Tags
     def self.process_string(str)
       return unless str
       str.strip.upcase.
-          gsub(/\b[^a-zA-Z0-9_*-]+\b/,' ').
-          gsub(/(^[^a-zA-Z0-9_*-]+|[^a-zA-Z0-9_*-]+$)/,'').
+          gsub(/\b[^a-zA-Z0-9'_*-]+\b/,' ').
+          gsub(/(^[^a-zA-Z0-9'_*-]+|[^a-zA-Z0-9'_*-]+$)/,'').
           split(/\s+/)
     end
 

@@ -7,7 +7,9 @@ module AIML
       end
 
       PLACE_HOLDER = 'y-o-u'
-      SWAP = {'my' => 'your', 'me' => PLACE_HOLDER, 'i' => PLACE_HOLDER}
+      SWAP = {'yourself' => 'myself', 'myself' => 'yourself',
+              'your' => 'my', 'yours' => 'mine', 'mine' => 'yours',
+              'my' => 'your', 'me' => PLACE_HOLDER, 'i' => PLACE_HOLDER}
       SWAP_PARSER = /\b(#{SWAP.keys.join('|')})(\b|[^\w])/i
 
       YOU_PARSER = /\byou\b(\s*)(\b\w+\b)?/i
