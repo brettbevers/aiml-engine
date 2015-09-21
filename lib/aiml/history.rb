@@ -6,14 +6,15 @@ module AIML
     DEFAULT_ATTRIBUTES = YAML::load(File.open(File.dirname(__FILE__) + "/../../conf/readOnlyTags.yaml"))
 
     attr_accessor :topic
-    attr_reader :inputs, :responses, :environment, :reactions
+    attr_reader :inputs, :responses, :environment, :reactions, :graph_masters
 
     def initialize(attrs={})
-      @topic = attrs[:topic] || AIML::DEFAULT
-      @inputs = attrs[:inputs] || []
-      @responses = attrs[:responses] || []
-      @reactions = attrs[:reactions] || []
-      @environment = attrs[:environment] || DEFAULT_ATTRIBUTES.dup
+      @topic          = attrs[:topic]           || AIML::DEFAULT
+      @inputs         = attrs[:inputs]          || []
+      @responses      = attrs[:responses]       || []
+      @reactions      = attrs[:reactions]       || []
+      @graph_masters  = attrs[:graph_masters]   || []
+      @environment    = attrs[:environment]     || DEFAULT_ATTRIBUTES.dup
     end
 
     def star_greedy
@@ -114,12 +115,6 @@ module AIML
 
     def get_stimulus(index)
       inputs[index]
-    end
-
-    def with_reaction(reaction)
-      reactions.push reaction
-      yield
-      reactions.pop
     end
 
   end

@@ -79,6 +79,7 @@ describe "Alice" do
     @alice.get_reaction("I have a dog named 'Winston'.").must_equal "That is a cool name!"
 
     @alice.get_reaction("PLUTO IS A PLANET").must_equal "Yes."
+    @alice.get_reaction("define argute")
 
   end
 

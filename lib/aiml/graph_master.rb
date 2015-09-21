@@ -32,27 +32,15 @@ module AIML
       return unless reaction
 
       result = []
-      reaction.render(context) do |token|
-        result.push render_token(token, context)
+      context.reactions.push reaction
+      context.graph_masters.push self
+      reaction.template.each do |token|
+        result.push token.to_s(context)
       end
+      context.reactions.pop
+      context.graph_masters.pop
 
       result.flatten.join.gsub(/\s+/,' ').strip
-    end
-
-    def render_token(token, context)
-      case token
-        when AIML::Tags::Srai
-          render_reaction(token.to_pattern(context), context)
-        when AIML::Tags::ListItem
-          token.body.map{ |sub_token| render_token(sub_token, context) }
-        when AIML::Tags::Condition, AIML::Tags::Random, AIML::Tags::Question
-          render_token(token.get_item(context), context)
-        when AIML::Tags::Think
-          token.body.map{ |sub_token| render_token(sub_token, context) }
-          return ''
-        else
-          token.to_s(context)
-      end
     end
 
   end

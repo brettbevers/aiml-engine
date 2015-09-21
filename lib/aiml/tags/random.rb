@@ -21,8 +21,8 @@ module AIML
         body.push object
       end
 
-      def get_item(context=nil)
-        context.get_random(body)
+      def to_s(context)
+        context.get_random(body).to_s(context)
       end
 
       def inspect
