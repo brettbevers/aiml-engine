@@ -17,13 +17,6 @@ module AIML
         body.push object
       end
 
-      def to_s(context=nil)
-        body.each do |thought|
-          thought.to_s(context)
-        end
-        return ''
-      end
-
       def inspect
         "think -> #{body.map(&:inspect).join(' ')}"
       end

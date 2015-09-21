@@ -23,8 +23,20 @@ module AIML
         end
       end
 
+      def to_pattern(context)
+        stimulus = to_path(context)
+        path = [stimulus, THAT, process_string(context.that), TOPIC, process_string(context.topic)].flatten
+        AIML::Tags::Pattern.new(path: path, stimulus: stimulus, that: context.that, topic: context.topic)
+      end
+
       def inspect
         "srai -> #{body.map(&:inspect).join(' ')}"
+      end
+
+      private
+
+      def process_string(str)
+        AIML::Tags::Pattern.process_string(str)
       end
 
     end

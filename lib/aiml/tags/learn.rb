@@ -22,29 +22,31 @@ module AIML::Tags
     def to_s(context)
       body.each do |category|
         category = Marshal::load(Marshal.dump(category))
-        %w{template that topic pattern}.each do |attr|
-          component = category.send(attr)
-          component.body = render(component.body, context)
-          learner.learn(category)
+        %w{template that pattern}.each do |attr|
+          next unless component = category.send(attr)
+          render!(component.body, context)
         end
+        category.pattern.reprocess_stimulus
+        learner.learn(category)
       end
       return ''
     end
 
-    def render(body, context, eval=false)
+    def render!(body, context, eval=false)
       body.map! { |token|
         if token.is_a? AIML::Tags::Eval
-          render(token.body, context, true)
+          render!(token.body, context, true)
           token.body
         elsif eval
           token.to_s(context)
         else
           if token.respond_to?(:body)
-            render(token.body, context, eval)
+            render!(token.body, context, eval)
           end
           token
         end
-      }.flatten
+      }
+      body.flatten!
     end
 
     def inspect

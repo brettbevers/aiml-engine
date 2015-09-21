@@ -3,7 +3,7 @@ module AIML
     class Person2 < Base
 
       def self.tag_names
-        %w{ person2 }
+        %w{ person person2 }
       end
 
       PLACE_HOLDER = 'y-o-u'

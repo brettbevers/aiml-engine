@@ -15,5 +15,8 @@ module AIML::Tags
       body.push object
     end
 
+    def to_s(context)
+    end
+
   end
 end

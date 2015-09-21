@@ -21,9 +21,8 @@ module AIML
         body.push object
       end
 
-      def to_s(context=nil)
-        choices = body.map { |item| item.to_s(context) }.flatten
-        context.get_random(choices).strip
+      def get_item(context=nil)
+        context.get_random(body)
       end
 
       def inspect

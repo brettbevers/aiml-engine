@@ -129,6 +129,13 @@ module AIML::Tags
       self.class.process_string(str)
     end
 
+    def reprocess_stimulus
+      old_stimulus = stimulus
+      self.stimulus = nil
+      old_stimulus.each{ |token| add(token) }
+      stimulus
+    end
+
   end
 end
 

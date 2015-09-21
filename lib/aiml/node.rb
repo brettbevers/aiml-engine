@@ -45,7 +45,7 @@ module AIML
         if reaction
           reaction.add_match_group(pattern.current_segment, pattern.path[0...index])
           return reaction
-        elsif template
+        elsif t = children["_"].template
           reaction = Reaction.new(template)
           reaction.add_match_group(pattern.current_segment, pattern.stimulus)
           return reaction
@@ -62,8 +62,8 @@ module AIML
         if reaction
           reaction.add_match_group(pattern.current_segment, pattern.path[0...index])
           return reaction
-        elsif template
-          reaction = Reaction.new(template)
+        elsif t = children["*"].template
+          reaction = Reaction.new(t)
           reaction.add_match_group(pattern.current_segment, pattern.stimulus)
           return reaction
         end

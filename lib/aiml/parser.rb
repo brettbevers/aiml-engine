@@ -68,7 +68,7 @@ module AIML
           when *AIML::Tags::Gender.tag_names
             context.add_tag AIML::Tags::Gender.new
           when *AIML::Tags::Person.tag_names
-            context.add_tag AIML::Tags::Person.new
+            context.add_tag AIML::Tags::Person2.new
           when *AIML::Tags::Person2.tag_names
             context.add_tag AIML::Tags::Person2.new
         end

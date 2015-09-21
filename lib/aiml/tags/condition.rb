@@ -19,11 +19,11 @@ module AIML
         body.push item
       end
 
-      def to_s(context=nil)
+      def get_item(context=nil)
         body.each do |item|
           p = item.attributes['name']
           v = (item.attributes['value'] || '').gsub('*', '.*?')
-          return item.to_s(context) if context.get(p) =~ /^#{v}$/i
+          return item if context.get(p) =~ /^#{v}$/i
         end
         return ''
       end

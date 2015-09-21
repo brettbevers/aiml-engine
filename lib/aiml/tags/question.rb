@@ -10,6 +10,11 @@ module AIML
         @body = [AIML::Tags::ReadOnly.new('question')]
       end
 
+      def get_item(context)
+        items = context.get('question')
+        context.get_random(items)
+      end
+
     end
   end
 end
