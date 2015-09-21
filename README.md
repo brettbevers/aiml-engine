@@ -4,8 +4,6 @@
 
 AimlEngine is a Ruby implementation of an interpreter for the Artificial Intelligence Markup Language (AIML) based on the work of Dr. Wallace and defined by the Alicebot and AIML Architecture Committee of the A.L.I.C.E. AI Foundation http://alicebot.org
 
-Some of the ALICE AIML files have thrown parse errors with certain caraters in my tests, so a subset is available here: https://github.com/robertjwhitney/alice-programr
-
 
 ### Original Authors:
 
