@@ -6,20 +6,12 @@ module AIML
         %w{ li }
       end
 
-      attr_reader :attributes, :body
+      attr_reader :attributes
       alias_method :template, :body
 
       def initialize(attributes={})
         @attributes = attributes
         @body = []
-      end
-
-      def add(object)
-        body.push object
-      end
-
-      def to_s(context)
-        body.map{|token| token.to_s(context) }.join
       end
 
       def inspect

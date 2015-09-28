@@ -2,18 +2,8 @@ module AIML
   module Tags
     class Formal < Base
 
-      def self.tag_names
-        %w{ formal }
-      end
-
-      attr_reader :body
-
       def initialize(text=nil)
         @body = [text].compact
-      end
-
-      def add(object)
-        body.push object
       end
 
       def to_s(context)

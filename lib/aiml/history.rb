@@ -17,6 +17,16 @@ module AIML
       @environment    = attrs[:environment]     || DEFAULT_ATTRIBUTES.dup
     end
 
+    def dump
+      {
+          topic: topic,
+          inputs: inputs,
+          responses: responses,
+          reactions: reactions,
+          environment: environment
+      }
+    end
+
     def star_greedy
       return [] unless @reactions[-1]
       @reactions[-1].star

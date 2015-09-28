@@ -14,16 +14,7 @@ module AIML
 
       YOU_PARSER = /\byou\b(\s*)(\b\w+\b)?/i
 
-      attr_reader :body
       alias_method :sentence, :body
-
-      def initialize
-        @body = []
-      end
-
-      def add(object)
-        body.push(object)
-      end
 
       def to_s(context=nil)
         result = ''
@@ -48,9 +39,6 @@ module AIML
         result
       end
 
-      def inspect
-        "person2 -> #{body.map(&:inspect).join(' ')}"
-      end
     end
   end
 end

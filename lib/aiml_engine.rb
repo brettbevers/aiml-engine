@@ -1,6 +1,7 @@
 require_relative "version"
 require_relative "string"
 require 'engtagger'
+require_relative 'aiml/config'
 
 module AIML
   THAT    = '<that>'
@@ -13,6 +14,13 @@ module AIML
   class TagError < StandardError; end
   class TagMismatch < TagError; end
   class MissingParentTag < TagError; end
+
+  @@config = ::AIML::Config.new
+
+  def self.config
+    yield @@config
+  end
+
 end
 
 require_relative "aiml/facade"

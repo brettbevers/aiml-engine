@@ -2,10 +2,6 @@ module AIML
   module Tags
     class Person < Base
 
-      def self.tag_names
-        %w{ person }
-      end
-
       SWAP = {'male' => {'me' => 'him',
                          'my' => 'his',
                          'myself' => 'himself',
@@ -21,16 +17,7 @@ module AIML
                            'he' => 'i',
                            'she' => 'i'}}
 
-      attr_reader :body
       alias_method :sentence, :body
-
-      def initialize
-        @body = []
-      end
-
-      def add(object)
-        body.push(object)
-      end
 
       def to_s(context=nil)
         result = ''
@@ -44,9 +31,6 @@ module AIML
         result
       end
 
-      def inspect
-        "person-> #{body.map(&:inspect).join(' ')}"
-      end
     end
   end
 end

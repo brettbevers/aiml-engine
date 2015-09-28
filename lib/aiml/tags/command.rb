@@ -6,15 +6,10 @@ module AIML
         %w{ system }
       end
 
-      attr_reader :body
       alias_method :command, :body
 
       def initialize(text=nil)
         @body = [text].compact
-      end
-
-      def add(object)
-        body.push object
       end
 
       def to_s(context)

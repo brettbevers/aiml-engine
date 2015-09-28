@@ -6,16 +6,11 @@ module AIML
         [/^set_*/, 'set']
       end
 
-      attr_reader :local_name, :body
       alias_method :value, :body
 
       def initialize(local_name, attributes)
         @local_name = attributes['name'] || local_name.sub(/^set_/, '')
         @body = []
-      end
-
-      def add(object)
-        body.push(object)
       end
 
       def to_s(context)
@@ -24,10 +19,6 @@ module AIML
         }.join.strip
         context.set(local_name, result)
         return result
-      end
-
-      def inspect
-        "set tag #{local_name} -> #{body.map(&:inspect).join(' ')}"
       end
 
     end

@@ -1,6 +1,6 @@
 module AIML
   module Tags
-    class Category < Base
+    class Category
 
       def self.tag_names
         %w{ category }

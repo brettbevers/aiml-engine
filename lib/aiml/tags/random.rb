@@ -2,11 +2,6 @@ module AIML
   module Tags
     class Random < Base
 
-      def self.tag_names
-        %w{ random }
-      end
-
-      attr_reader :body
       alias_method :items, :body
 
       def initialize(attributes)
@@ -15,10 +10,6 @@ module AIML
         if name && name != 'random'
           body.push AIML::Tags::ReadOnly.new(name)
         end
-      end
-
-      def add(object)
-        body.push object
       end
 
       def to_s(context)

@@ -6,14 +6,8 @@ module AIML
         %w{ srai  sr }
       end
 
-      attr_reader :body
-
       def initialize(object=nil)
         @body = [object].compact
-      end
-
-      def add(object)
-        body.push(object)
       end
 
       def to_path(context)
@@ -32,10 +26,6 @@ module AIML
         graph_master = context.graph_masters[-1]
         pattern = self.to_pattern(context)
         graph_master.render_reaction(pattern, context)
-      end
-
-      def inspect
-        "srai -> #{body.map(&:inspect).join(' ')}"
       end
 
       private

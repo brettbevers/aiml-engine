@@ -2,10 +2,6 @@ module AIML
   module Tags
     class Gender < Base
 
-      def self.tag_names
-        %w{ gender }
-      end
-
       PRONOUN_MAP = {
           'he' => 'she',
           'she' => 'he',
@@ -29,16 +25,7 @@ module AIML
       PRONOUN_PARSER = /\b(#{PRONOUN_MAP.keys.join('|')})\b/i
       HIS_HER_PARSER = /\b(his|her)\b(\s*)(\b\w*\b)?/i
 
-      attr_reader :body
       alias_method :sentence, :body
-
-      def initialize
-        @body = []
-      end
-
-      def add(object)
-        body.push(object)
-      end
 
       def to_s(context=nil)
         result = ''

@@ -1,5 +1,5 @@
 module AIML::Tags
-  class Pattern < Base
+  class Pattern
 
     def self.tag_names
       %w{ pattern }

@@ -2,21 +2,13 @@ module AIML
   module Tags
     class Condition < Base
 
-      def self.tag_names
-        %w{ condition }
-      end
-
-      attr_reader :property, :value, :body
+      attr_reader :property, :value
       alias_method :items, :body
 
       def initialize(attributes)
         @body = []
         @property = attributes['name']
         @value = attributes['value']
-      end
-
-      def add(item)
-        body.push item
       end
 
       def to_s(context)

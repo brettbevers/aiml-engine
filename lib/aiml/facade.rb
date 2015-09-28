@@ -33,7 +33,15 @@ module AIML
       Cache::dumping(theCacheFilename,@graph_master)
     end
 
-    def get_reaction(raw_stimulus, context=self.context)
+    def load_context(data)
+      @context = History.new(data.with_indifferent_access)
+    end
+
+    def dump_context
+      context.dump
+    end
+
+    def get_reaction(raw_stimulus)
       context.update_stimulus(raw_stimulus)
       pattern = AIML::Tags::Pattern.new(raw_stimulus: raw_stimulus, that: context.that, topic: context.topic)
       result = graph_master.render_reaction(pattern, context)

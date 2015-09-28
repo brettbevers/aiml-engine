@@ -2,20 +2,7 @@ module AIML
   module Tags
     class Think < Base
 
-      def self.tag_names
-        %w{ think }
-      end
-
-      attr_reader :body
       alias_method :thoughts, :body
-
-      def initialize
-        @body = []
-      end
-
-      def add(object)
-        body.push object
-      end
 
       def to_s(context)
         body.each do |thought|
@@ -24,9 +11,6 @@ module AIML
         return ''
       end
 
-      def inspect
-        "think -> #{body.map(&:inspect).join(' ')}"
-      end
     end
   end
 end

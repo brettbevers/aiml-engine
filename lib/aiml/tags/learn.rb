@@ -1,11 +1,7 @@
 module AIML::Tags
   class Learn < Base
 
-    def self.tag_names
-      %w{ learn }
-    end
-
-    attr_reader :learner, :body
+    attr_reader :learner
     alias_method :categories, :body
 
     def initialize(learner)
@@ -47,10 +43,6 @@ module AIML::Tags
         end
       }
       body.flatten!
-    end
-
-    def inspect
-      "Learn -> #{body.map(&:inspect).join(' ')}"
     end
 
   end

@@ -5,11 +5,7 @@ module AIML
 
       INDEX_PARSER = /^(\d+),?(\d+|\*)?/
 
-      def self.tag_names
-        %w{ that }
-      end
-
-      attr_reader :body, :first_index, :second_index
+      attr_reader :first_index, :second_index
       alias_method :path, :body
 
       def initialize(attributes={})
