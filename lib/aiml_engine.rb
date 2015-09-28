@@ -18,7 +18,8 @@ module AIML
   @@config = ::AIML::Config.new
 
   def self.config
-    yield @@config
+    yield @@config if block_given?
+    @@config
   end
 
 end

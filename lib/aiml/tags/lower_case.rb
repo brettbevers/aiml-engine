@@ -2,6 +2,10 @@ module AIML
   module Tags
     class LowerCase < Base
 
+      def self.tag_names
+        %w{ lowercase }
+      end
+
       def initialize(text=nil)
         @body = [text].compact
       end

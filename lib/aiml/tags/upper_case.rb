@@ -2,6 +2,10 @@ module AIML
   module Tags
     class UpperCase < Base
 
+      def self.tag_names
+        %w{ uppercase }
+      end
+
       def initialize(text=nil)
         @body = [text].compact
       end

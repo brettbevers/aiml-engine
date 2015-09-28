@@ -14,5 +14,14 @@ module AIML
       end
     end
 
+    def custom_tag_names
+      custom_tag_map.keys
+    end
+
+    def get_custom_tag(tag_name)
+      key = custom_tag_names.find{ |key| key === tag_name.to_s }
+      custom_tag_map[key]
+    end
+
   end
 end

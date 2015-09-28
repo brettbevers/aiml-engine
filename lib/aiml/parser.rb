@@ -105,19 +105,19 @@ module AIML
       ### end self-terminating tags
 
       ### string manipulation
-      @parser.listen(:characters, AIML::Tags::UpperCase.tag_names) { |uri, local_name, qname, attributes|
+      @parser.listen(:characters, AIML::Tags::UpperCase.tag_names) {
         context.add_tag(AIML::Tags::UpperCase.new)
       }
 
-      @parser.listen(:characters, AIML::Tags::LowerCase.tag_names) { |uri, local_name, qname, attributes|
+      @parser.listen(:characters, AIML::Tags::LowerCase.tag_names) {
         context.add_tag(AIML::Tags::LowerCase.new)
       }
 
-      @parser.listen(:characters, AIML::Tags::Formal.tag_names) { |uri, local_name, qname, attributes|
+      @parser.listen(:characters, AIML::Tags::Formal.tag_names) {
         context.add_tag(AIML::Tags::Formal.new)
       }
 
-      @parser.listen(:characters, AIML::Tags::Sentence.tag_names) { |uri, local_name, qname, attributes|
+      @parser.listen(:characters, AIML::Tags::Sentence.tag_names) {
         context.add_tag(AIML::Tags::Sentence.new)
       }
       ### end string manipulation
@@ -127,6 +127,13 @@ module AIML
         context.add_to_tag "AIML 1.0"
       }
       ### end version
+
+      ### custom tags
+      @parser.listen(AIML.config.custom_tag_names) { |uri, local_name, qname, attributes|
+        tag_klass = AIML.config.get_custom_tag(local_name)
+        context.add_tag tag_klass.new(local_name, attributes)
+      }
+      ### end custom tags
 
       ### pattern / that / template
       @parser.listen(Listeners::Pattern.new(context))

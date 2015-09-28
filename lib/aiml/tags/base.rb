@@ -2,11 +2,12 @@ module AIML::Tags
   class Base
 
     def self.tag_names
+      return @tag_names if @tag_names
       str = name.split('::').last
       str.gsub!(/([A-Z]+)([A-Z][a-z\d])/,'\1_\2')
       str.gsub!(/([a-z\d])([A-Z])/,'\1_\2')
       str.downcase!
-      [ str ]
+      @tag_names = [ str ]
     end
 
     attr_reader :body, :local_name, :attributes

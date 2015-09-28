@@ -10,7 +10,7 @@ describe "Alice" do
     @alice.learn('test/data/alice')
   end
 
-  it "matches full sentence" do
+  it "reacts" do
     @alice.get_reaction("HI").must_equal "Hi there!"
 
     @alice.get_reaction("YOU SOUND LIKE DATA").must_equal "Yes I am inspired by Commander Data's artificial personality."
