@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml>
+
+<category><pattern>MY FAVORITE COLOR IS <set>color</set></pattern>
+<template>
+<set name="favoritecolor"><formal><star/></formal></set> is a nice color.
+<think><set name="it"><set name="topic"><star/></set></set></think>
+</template>
+</category>
+
+<category><pattern>MY FAVORITE COLOR IS *</pattern>
+<template>I didn't recognize <star/> as a color.</template>
+</category>
+
+<category><pattern>MY FAVORITE COLOR IS GREEN</pattern>
+<template><set name="favoritecolor">Green</set> is my favorite color too! <think><set name="it"><set name="topic">Green</set></set></think></template>
+</category>
+
+<category><pattern>I LIKE <set>color</set></pattern>
+<template><srai>MY FAVORITE COLOR IS <star/></srai></template>
+</category>
+
+<category><pattern>SHARPTEST #</pattern>
+<template>#star = <star/></template>
+</category>
+
+<category><pattern>SHARPTEST # TEST</pattern>
+<template>#star = <star/></template>
+</category>
+
+<category><pattern># KEYWORD #</pattern>
+<template>Found KEYWORD</template>
+</category>
+
+<category><pattern>^ CARETTEST</pattern>
+<template>^star = <star/></template>
+</category>
+
+<category>
+<pattern>_ ALICE</pattern>
+<template><sr/></template>
+</category>
+
+<category>
+<pattern>$WHO IS ALICE</pattern>
+<template>I am Alice.</template>
+</category>
+
+</aiml>
