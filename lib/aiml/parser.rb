@@ -51,7 +51,7 @@ module AIML
       ### learn / eval
       @parser.listen(AIML::Tags::Learn.tag_names) { |uri, local_name, qname, attributes|
         if attributes['filename']
-          AimlFinder.find(attributes['filename']).each do |filename|
+          fileFinder.find_aiml(attributes['filename']).each do |filename|
             text = File.open(filename).read
             parse(text)
           end
@@ -136,7 +136,7 @@ module AIML
       ### end custom tags
 
       ### pattern / that / template
-      @parser.listen(Listeners::Pattern.new(context))
+      @parser.listen(Listeners::Pattern.new(context, learner))
       @parser.listen(Listeners::That.new(context))
       @parser.listen(Listeners::Template.new(context, learner))
       ### end pattern / that / template

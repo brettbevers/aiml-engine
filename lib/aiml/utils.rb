@@ -13,19 +13,43 @@ module AIML
   end
   end # module Cache
 
-  module AimlFinder
+  module FileFinder
     # Returns an array of aiml files recursively found
-    def self.find(files_and_dirs)
+    def self.find(ext, files_and_dirs)
       files_and_dirs = files_and_dirs.is_a?(String) ? [files_and_dirs] : files_and_dirs
       files = []
       files_and_dirs.each{|file|
-        if File.file?(file) && (file  =~ /.*\.aiml$/)
+        if File.file?(file) && (file  =~ /.*\.#{ext}$/)
           files << file
           next
         end
-        files += find(Dir.glob("#{file}/*"))
+        files += find(ext, Dir.glob("#{file}/*"))
       }
       files
+    end
+
+    def self.find_aiml(files_and_dirs)
+      find(:aiml, files_and_dirs)
+    end
+
+    def self.find_maps(files_and_dirs)
+      find(:map, files_and_dirs)
+    end
+
+    def self.find_sets(files_and_dirs)
+      find(:set, files_and_dirs)
+    end
+
+    def self.find_substitutions(files_and_dirs)
+      find(:substitutions, files_and_dirs)
+    end
+
+    def self.find_pdefaults(files_and_dirs)
+      find(:pdefaults, files_and_dirs)
+    end
+
+    def self.find_properties(files_and_dirs)
+      find(:properties, files_and_dirs)
     end
   end
 end #module AIML

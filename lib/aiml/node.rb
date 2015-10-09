@@ -15,33 +15,32 @@ module AIML
       str += '| '*(ind - 1) + "|_#{nodeId}" unless ind == 0
       str += ": [#{@template.inspect}]" if @template
       str += "\n" unless ind == 0
-      @children.each_key{|c| str += @children[c].inspectNode(c, ind+1)}
+      children.each_key{|c| str += children[c].inspectNode(c, ind+1)}
       str
     end
-
-    # def merge(aCache)
-    #   aCache.children.keys.each do |key|
-    #     if(@children.key?(key))
-    #       @children[key].merge(aCache.children[key])
-    #       next
-    #     end
-    #     @children[key] = aCache.children[key]
-    #   end
-    # end
 
     def learn(category, path)
       branch = path.shift
       return @template = category.template unless branch
-      @children[branch].learn(category, path)
+      children[branch].learn(category, path)
     end
 
-    def get_reaction(pattern)
+    def get_reaction(pattern, options={})
+      reaction = _get_reaction(pattern, options)
+      filter_reaction(reaction, options)
+    end
+
+    private
+
+    def _get_reaction(pattern, options={})
+      yield self if block_given?
+
       if pattern.satisfied?(children)
         return template ? Reaction.new(template) : nil
       end
 
-      if @children.key?("_") && pattern.key_matchable?
-        reaction, index = search_suffixes(pattern, @children["_"], greedy: true)
+      if children.key?("_") && pattern.key_matchable?
+        reaction, index = search_suffixes(pattern, children["_"], greedy: true)
         if reaction
           reaction.add_match_group(pattern.current_segment, pattern.path[0...index])
           return reaction
@@ -52,13 +51,27 @@ module AIML
         end
       end
 
-      if @children.key?(pattern.key)
-        reaction = @children[pattern.key].get_reaction(pattern.suffix)
+      if children.key?(pattern.key)
+        reaction = children[pattern.key].get_reaction(pattern.suffix)
         return reaction if reaction
       end
 
-      if @children.key?("*") && pattern.key_matchable?
-        reaction, index = search_suffixes(pattern, @children["*"])
+      if sets.any?
+        sets.each do |set|
+          matches = set.match(pattern)
+          next unless matches.any?
+          matches.each do |index, match|
+            reaction = children[set].get_reaction(pattern.suffix(index))
+            if reaction
+              reaction.add_match_group(pattern.current_segment, match)
+              return reaction
+            end
+          end
+        end
+      end
+
+      if children.key?("*") && pattern.key_matchable?
+        reaction, index = search_suffixes(pattern, children["*"])
         if reaction
           reaction.add_match_group(pattern.current_segment, pattern.path[0...index])
           return reaction
@@ -82,7 +95,9 @@ module AIML
       return nil
     end
 
-    private
+    def sets
+      @sets ||= children.keys.select{|key| key.is_a? AIML::Tags::MatchSet }
+    end
 
     def search_suffixes(pattern, graph, greedy: false)
       index = 1
@@ -100,6 +115,15 @@ module AIML
         index += 1
       end
       return current_reaction, current_index
+    end
+
+    def filter_reaction(reaction, options={})
+      return nil unless reaction
+      if options[:exclude].is_a?(Array) and options[:exclude].includes?(reaction.template)
+        nil
+      else
+        reaction
+      end
     end
 
   end

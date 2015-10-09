@@ -1,5 +1,6 @@
 require_relative 'graph_master'
 require_relative 'parser'
+require_relative 'set_parser'
 require_relative 'history'
 require_relative 'utils'
 require_relative 'tags/pattern'
@@ -12,11 +13,13 @@ module AIML
     def initialize(cache = nil)
       @graph_master = GraphMaster.new
       @parser       = Parser.new(@graph_master)
+      @set_parser   = SetParser.new(@graph_master)
       @context      = History.new
     end
 
     def learn(files)
-      AimlFinder::find(files).each{|f| File.open(f,'r'){|f| @parser.parse f} }
+      FileFinder::find_aiml(files).each{|f| File.open(f,'r'){|io| @parser.parse io} }
+      FileFinder::find_sets(files).each{|f| File.open(f,'r'){|io| @set_parser.parse io} }
     end
 
     def loading(theCacheFilename='cache')

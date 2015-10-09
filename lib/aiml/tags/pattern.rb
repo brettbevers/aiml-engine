@@ -17,6 +17,7 @@ module AIML::Tags
       @path = path
       @stimulus = stimulus
       @current_segment = current_segment
+      @suffixes = {}
     end
 
     def path
@@ -87,12 +88,13 @@ module AIML::Tags
       !children.key?(AIML::TOPIC)
     end
 
-    def suffix
+    def suffix(index=1)
       return if path.empty?
-      @suffix ||= begin
-
-        p = path[1..-1] || []
-        s = stimulus[1..-1] || []
+      @suffixes[index] ||= begin
+                             binding.pry if index.is_a? String
+        raise AIML::ExceededEndOfPattern if stimulus.size < index && path.size < index
+        p = path[index..-1] || []
+        s = stimulus[index..-1] || []
 
         if start_that_segment?
           cs = :that
@@ -120,8 +122,8 @@ module AIML::Tags
     def self.process_string(str)
       return unless str
       str.strip.upcase.
-          gsub(/\b[^a-zA-Z0-9'_*-]+\b/,' ').
-          gsub(/(^[^a-zA-Z0-9'_*-]+|[^a-zA-Z0-9'_*-]+$)/,'').
+          gsub(/\b[^a-zA-Z0-9'_*\^#-]+\b/,' ').
+          gsub(/(^[^a-zA-Z0-9'_*\^#-]+|[^a-zA-Z0-9'_*\^#-]+$)/,'').
           split(/\s+/)
     end
 

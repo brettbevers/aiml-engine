@@ -6,9 +6,11 @@ module AIML
 
   class GraphMaster
     attr_reader :graph
+    attr_accessor :sets
 
     def initialize
       @graph = Node.new
+      @sets  = Node.new
     end
 
     def merge(aCache)
@@ -17,6 +19,10 @@ module AIML
 
     def learn(category)
       @graph.learn(category, category.path.dup)
+    end
+
+    def learn_set_element(element)
+      @sets.learn(element, element.path.dup)
     end
 
     def to_s
@@ -29,8 +35,16 @@ module AIML
 
     def render_reaction(pattern, context)
       reaction = get_reaction(pattern)
-      return unless reaction
+      render(reaction, context).join.gsub(/\s+/,' ').strip if reaction
+    end
 
+    def match_set(pattern, options)
+      index = 0
+      reaction = sets.get_reaction(pattern, options) { |_| index += 1 }
+      return index, reaction if reaction
+    end
+
+    def render(reaction, context=AIML::History.new)
       result = []
       context.reactions.push reaction
       context.graph_masters.push self
@@ -39,8 +53,7 @@ module AIML
       end
       context.reactions.pop
       context.graph_masters.pop
-
-      result.flatten.join.gsub(/\s+/,' ').strip
+      result.flatten
     end
 
   end

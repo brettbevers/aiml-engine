@@ -25,4 +25,5 @@ require_relative 'tags/upper_case'
 require_relative 'tags/formal'
 require_relative 'tags/sentence'
 require_relative 'tags/eval'
+require_relative 'tags/match_set'
 
