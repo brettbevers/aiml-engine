@@ -7,6 +7,20 @@
 </template>
 </category>
 
+<category><pattern>MY FAVORITE COLOR IS <set>color</set></pattern>
+<that>VIOLET BLUE is a nice color.</that>
+<template>
+Repeated
+</template>
+</category>
+
+<category><pattern>MY FAVORITE COLOR IS <set>color</set></pattern>
+<that>Topic alice. Topic alice. VIOLET BLUE is a nice color.</that>
+<template>
+Really not founded
+</template>
+</category>
+
 <category><pattern>MY FAVORITE COLOR IS *</pattern>
 <template>I didn't recognize <star/> as a color.</template>
 </category>
@@ -32,7 +46,17 @@
 </category>
 
 <category><pattern>^ CARETTEST</pattern>
+<that>^star = UNDEF</that>
+<template>repeat</template>
+</category>
+
+<category><pattern>^ CARETTEST</pattern>
 <template>^star = <star/></template>
+</category>
+
+<category><pattern>^ CARETTEST</pattern>
+<that>Topic alice. ^star = UNDEF</that>
+<template>Not found</template>
 </category>
 
 <category>
@@ -50,6 +74,20 @@
 <category><pattern>MY FAVORITE COLOR IS <set>color</set></pattern>
 <template>
 Topic alice. <set name="favoritecolor"><formal><star/></formal></set> is a nice color.
+</template>
+</category>
+
+<category><pattern>MY FAVORITE COLOR IS <set>color</set></pattern>
+<that>VIOLET BLUE is a nice color.</that>
+<template>
+Not founded
+</template>
+</category>
+
+<category><pattern>MY FAVORITE COLOR IS <set>color</set></pattern>
+<that>Topic alice. Topic alice. VIOLET BLUE is a nice color.</that>
+<template>
+Repeated Repeated
 </template>
 </category>
 
@@ -79,6 +117,16 @@ Topic alice. <set name="favoritecolor"><formal><star/></formal></set> is a nice 
 
 <category><pattern>^ CARETTEST</pattern>
 <template>Topic alice. ^star = <star/></template>
+</category>
+
+<category><pattern>^ CARETTEST</pattern>
+<that>Topic alice. ^star = UNDEF</that>
+<template>repeat repeat</template>
+</category>
+
+<category><pattern>^ CARETTEST</pattern>
+<that>^star = UNDEF</that>
+<template>really not found</template>
 </category>
 
 <category>
