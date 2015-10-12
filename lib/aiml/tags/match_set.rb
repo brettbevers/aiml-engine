@@ -9,19 +9,29 @@ module AIML
         @body = []
       end
 
+      def ==(other)
+        other.is_a?(AIML::Tags::MatchSet) && self.body == other.body
+      end
+      alias_method :eql?, :==
+
+      def hash
+        body.hash
+      end
+
       def self.tag_names
         %w{ set }
       end
 
       def match(pattern)
-        return unless pattern.path && pattern.stimulus
+        return unless pattern.key_matchable?
         path = prefix + pattern.path
-        stimulus = prefix + pattern.stimulus
         that = pattern.that
         topic = pattern.topic
-        current_segment = pattern.current_segment
-        prefixed = AIML::Tags::Pattern.new(path: path, stimulus: stimulus, that: that, topic: topic, current_segment: current_segment)
-        Search.new(prefixed, graph_master)
+        current_segment_type = pattern.current_segment_type
+        prefixed_pattern = AIML::Tags::Pattern.new(path: path, that: that, topic: topic, current_segment_type: current_segment_type)
+        response = graph_master.match_set(prefixed_pattern)
+        response.decrement(prefix.size) if response
+        response
       end
 
       def prefix
@@ -31,21 +41,6 @@ module AIML
               AIML::Tags::Pattern.process_string(token)
           end
         }.flatten.compact
-      end
-
-      class Search
-
-        attr_reader :pattern, :graph_master
-
-        def initialize(pattern, graph_master)
-          @pattern = pattern
-          @graph_master = graph_master
-        end
-
-        def each(&block)
-
-        end
-
       end
 
     end

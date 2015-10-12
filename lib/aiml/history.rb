@@ -84,19 +84,19 @@ module AIML
     def star(index)
       index -= 1
       return UNDEF unless star_greedy[index]
-      star_greedy[index].join(' ')
+      star_greedy[index].map{|token| token.to_s(self)}.join(' ')
     end
 
     def thatstar(index)
       index -= 1
       return UNDEF unless that_greedy[index]
-      that_greedy[index].join(' ')
+      that_greedy[index].map{|token| token.to_s(self)}.join(' ')
     end
 
     def topicstar(index)
       index -= 1
       return UNDEF unless topic_greedy[index]
-      topic_greedy[index].join(' ')
+      topic_greedy[index].map{|token| token.to_s(self)}.join(' ')
     end
 
     def male

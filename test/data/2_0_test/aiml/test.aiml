@@ -4,7 +4,6 @@
 <category><pattern>MY FAVORITE COLOR IS <set>color</set></pattern>
 <template>
 <set name="favoritecolor"><formal><star/></formal></set> is a nice color.
-<think><set name="it"><set name="topic"><star/></set></set></think>
 </template>
 </category>
 
@@ -13,7 +12,7 @@
 </category>
 
 <category><pattern>MY FAVORITE COLOR IS GREEN</pattern>
-<template><set name="favoritecolor">Green</set> is my favorite color too! <think><set name="it"><set name="topic">Green</set></set></think></template>
+<template><set name="favoritecolor">Green</set> is my favorite color too! </template>
 </category>
 
 <category><pattern>I LIKE <set>color</set></pattern>
@@ -38,12 +37,60 @@
 
 <category>
 <pattern>_ ALICE</pattern>
-<template><sr/></template>
+<template><sr/><think><set_topic>alice</set_topic></think></template>
 </category>
 
 <category>
 <pattern>$WHO IS ALICE</pattern>
 <template>I am Alice.</template>
 </category>
+
+<topic name="alice">
+
+<category><pattern>MY FAVORITE COLOR IS <set>color</set></pattern>
+<template>
+Topic alice. <set name="favoritecolor"><formal><star/></formal></set> is a nice color.
+</template>
+</category>
+
+<category><pattern>MY FAVORITE COLOR IS *</pattern>
+<template>Topic alice. I didn't recognize <star/> as a color.</template>
+</category>
+
+<category><pattern>MY FAVORITE COLOR IS GREEN</pattern>
+<template>Topic alice. <set name="favoritecolor">Green</set> is my favorite color too!</template>
+</category>
+
+<category><pattern>I LIKE <set>color</set></pattern>
+<template>Topic alice. <srai>MY FAVORITE COLOR IS <star/></srai></template>
+</category>
+
+<category><pattern>SHARPTEST #</pattern>
+<template>Topic alice. #star = <star/></template>
+</category>
+
+<category><pattern>SHARPTEST # TEST</pattern>
+<template>Topic alice. #star = <star/></template>
+</category>
+
+<category><pattern># KEYWORD #</pattern>
+<template>Topic alice. Found KEYWORD</template>
+</category>
+
+<category><pattern>^ CARETTEST</pattern>
+<template>Topic alice. ^star = <star/></template>
+</category>
+
+<category>
+<pattern>_ ALICE</pattern>
+<template>Topic alice. <sr/><think><set_topic></set_topic></think></template>
+</category>
+
+<category>
+<pattern>$WHO IS ALICE</pattern>
+<template>Topic alice. I am Alice.</template>
+</category>
+
+</topic>
 
 </aiml>

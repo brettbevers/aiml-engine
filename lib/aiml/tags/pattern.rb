@@ -7,16 +7,16 @@ module AIML::Tags
 
     SEGMENTER = /^\s*(.*?)?(\s*(?<!#{AIML::THAT})#{AIML::THAT}\s+(.*?))?(\s*(?<!#{AIML::TOPIC})#{AIML::TOPIC}\s+(.*?))?\s*$/
 
-    attr_accessor :raw_stimulus, :that, :topic, :current_segment
+    attr_accessor :raw_stimulus, :that, :topic, :current_segment_type
 
     def initialize(raw_stimulus: nil, path: nil, stimulus: nil,
-                   that: [AIML::UNDEF], topic: [AIML::DEFAULT], current_segment: :stimulus)
+                   that: [AIML::UNDEF], topic: [AIML::DEFAULT], current_segment_type: :stimulus)
       @raw_stimulus = raw_stimulus
       @that = that.is_a?(String) ? process_string(that) : that
       @topic = that.is_a?(String) ? process_string(topic) : topic
       @path = path
       @stimulus = stimulus
-      @current_segment = current_segment
+      @current_segment_type = current_segment_type
       @suffixes = {}
     end
 
@@ -51,79 +51,123 @@ module AIML::Tags
     end
 
     def key
-      path[0]
+      @key ||= path[0]
     end
 
     def satisfied?(children)
       path.empty? ||
-          (start_that_segment? && context_irrelevant?(children)) ||
-          (start_topic_segment? && topic_irrelevant?(children))
+          ( start_that_segment? && context_irrelevant?(children) ) ||
+          ( start_topic_segment? && topic_irrelevant?(children) )
+    end
+
+    def qualified?(children)
+          ( children.key?(AIML::THAT) && start_that_segment? && !that_irrelevant?(children) ) ||
+          ( children.key?(AIML::TOPIC) && start_topic_segment? && !topic_irrelevant?(children) )
     end
 
     def start_context_segment?
-      start_that_segment? || start_topic_segment?
+      @start_context_segment ||= ( start_that_segment? || start_topic_segment? )
     end
 
     def start_that_segment?
-      key == AIML::THAT
+      @start_that_segment ||= key == AIML::THAT
     end
 
     def start_topic_segment?
-      key == AIML::TOPIC
+      @start_topic_segment ||= key == AIML::TOPIC
     end
 
     def null_key?
-      [AIML::DEFAULT, AIML::UNDEF].include?(key)
+      @null_key ||= null?(key)
+    end
+
+    def null?(value)
+      [AIML::DEFAULT, AIML::UNDEF].include?(value)
     end
 
     def key_matchable?
-      !null_key? && !start_context_segment?
+      @key_matchable ||= !( key.nil? || null_key? || start_context_segment? )
     end
 
     def context_irrelevant?(children)
-      !children.key?(AIML::THAT) && !children.key?(AIML::TOPIC)
+      that_irrelevant?(children) && topic_irrelevant?(children)
     end
 
     def topic_irrelevant?(children)
-      !children.key?(AIML::TOPIC)
+      ( !children.key?(AIML::TOPIC) || null?(topic.first) ) &&
+          ( !children.key?("#") || topic_irrelevant?(children["#"].children) ) &&
+          ( !children.key?("^") || topic_irrelevant?(children["^"].children) )
+    end
+
+    def that_irrelevant?(children)
+      ( !children.key?(AIML::THAT) || null?(that.first) ) &&
+          ( !children.key?("#") || that_irrelevant?(children["#"].children) ) &&
+          ( !children.key?("^") || that_irrelevant?(children["^"].children) )
+    end
+
+    def safe_suffix(index=1)
+      suffix(index)
+    rescue AIML::ExceededEndOfPattern
+      nil
     end
 
     def suffix(index=1)
-      return if path.empty?
       @suffixes[index] ||= begin
-                             binding.pry if index.is_a? String
-        raise AIML::ExceededEndOfPattern if stimulus.size < index && path.size < index
+        raise AIML::ExceededEndOfPattern if path.size < index
         p = path[index..-1] || []
-        s = stimulus[index..-1] || []
 
         if start_that_segment?
           cs = :that
         elsif start_topic_segment?
           cs = :topic
         else
-          cs = current_segment
+          cs = current_segment_type
         end
 
-        AIML::Tags::Pattern.new(path: p, stimulus: s, that: that, topic: topic, current_segment: cs)
+        AIML::Tags::Pattern.new(path: p, that: that, topic: topic, current_segment_type: cs)
       end
     end
 
-    def topic_segment
-      @topic_segment ||= begin
-        p = [AIML::TOPIC, topic].flatten
-        AIML::Tags::Pattern.new(path: p, stimulus: [], that: that, topic: topic)
+    def next_segment
+      return @next_segment if @next_segment
+      if start_context_segment?
+        @next_segment = suffix.next_segment
+        return @next_segment
       end
+      p = if current_segment_size > 0
+            path[current_segment_size..-1]
+          else
+            []
+          end
+      @next_segment = AIML::Tags::Pattern.new(path: p, stimulus: [], that: that, topic: topic,
+                                              current_segment_type: current_segment_type)
     end
 
     def default_topic?
-      topic == AIML::DEFAULT
+      @default_topic ||= topic == AIML::DEFAULT
+    end
+
+    def current_segment_size
+      @current_segment_size ||= current_segment.size
+    end
+
+    def current_segment
+      @current_segment ||= begin
+        result = []
+        memo = self
+        while memo.key_matchable? || memo.null_key?
+          result << memo.key
+          memo = memo.suffix
+        end
+        result
+      end
     end
 
     def self.process_string(str)
       return unless str
       str.strip.upcase.
-          gsub(/\b[^a-zA-Z0-9'_*\^#-]+\b/,' ').
-          gsub(/(^[^a-zA-Z0-9'_*\^#-]+|[^a-zA-Z0-9'_*\^#-]+$)/,'').
+          gsub(/\b[^a-zA-Z0-9'_*\$\^#-]+\b/,' ').
+          gsub(/(^[^a-zA-Z0-9'_*\$\^#-]+|[^a-zA-Z0-9'_*\$\^#-]+$)/,'').
           split(/\s+/)
     end
 

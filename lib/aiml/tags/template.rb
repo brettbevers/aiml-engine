@@ -12,6 +12,18 @@ module AIML
         body.each(&block)
       end
 
+      def size
+        body.size
+      end
+
+      def join(*args)
+        body.join(*args)
+      end
+
+      def empty?
+        body.empty?
+      end
+
     end
   end
 end

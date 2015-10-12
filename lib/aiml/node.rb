@@ -25,105 +25,133 @@ module AIML
       children[branch].learn(category, path)
     end
 
-    def get_reaction(pattern, options={})
-      reaction = _get_reaction(pattern, options)
-      filter_reaction(reaction, options)
-    end
-
-    private
-
-    def _get_reaction(pattern, options={})
-      yield self if block_given?
-
+    def get_reaction(pattern)
       if pattern.satisfied?(children)
-        return template ? Reaction.new(template) : nil
+        result = if children.key?("#") && children["#"].template
+                   Reaction.new(children["#"].template)
+                 elsif template
+                   Reaction.new(template)
+                 elsif children.key?("^") && children["^"].template
+                   Reaction.new(children["^"].template)
+                 end
+        return result
       end
 
-      if children.key?("_") && pattern.key_matchable?
-        reaction, index = search_suffixes(pattern, children["_"], greedy: true)
+      if pattern.qualified?(children)
+        result = if reaction = children[pattern.key].get_reaction(pattern.suffix)
+                   reaction
+                 elsif children.key?("#") && children["#"].template
+                   Reaction.new(children["#"].template)
+                 elsif children.key?("^") && children["^"].template
+                   Reaction.new(children["^"].template)
+                 end
+        return result if result
+      end
+
+      if children.key?("$#{pattern.key}")
+        reaction = children["$#{pattern.key}"].get_reaction(pattern.suffix)
         if reaction
-          reaction.add_match_group(pattern.current_segment, pattern.path[0...index])
-          return reaction
-        elsif t = children["_"].template
-          reaction = Reaction.new(template)
-          reaction.add_match_group(pattern.current_segment, pattern.stimulus)
+          reaction.increment
           return reaction
         end
+      end
+
+      if children.key?("#")
+        reaction = match_wildcard(pattern, children["#"])
+        return reaction if reaction
+      end
+
+      if children.key?("_")
+        reaction = match_wildcard(pattern, children["_"], greedy: true, min_match: 1)
+        return reaction if reaction
       end
 
       if children.key?(pattern.key)
-        reaction = children[pattern.key].get_reaction(pattern.suffix)
-        return reaction if reaction
-      end
-
-      if sets.any?
-        sets.each do |set|
-          matches = set.match(pattern)
-          next unless matches.any?
-          matches.each do |index, match|
-            reaction = children[set].get_reaction(pattern.suffix(index))
-            if reaction
-              reaction.add_match_group(pattern.current_segment, match)
-              return reaction
-            end
-          end
-        end
-      end
-
-      if children.key?("*") && pattern.key_matchable?
-        reaction, index = search_suffixes(pattern, children["*"])
-        if reaction
-          reaction.add_match_group(pattern.current_segment, pattern.path[0...index])
-          return reaction
-        elsif t = children["*"].template
-          reaction = Reaction.new(t)
-          reaction.add_match_group(pattern.current_segment, pattern.stimulus)
+        if reaction = children[pattern.key].get_reaction(pattern.suffix)
+          reaction.increment
           return reaction
         end
       end
 
-      if pattern.start_that_segment?
-        topic_segment = pattern.topic_segment
-        reaction = get_reaction(topic_segment)
+      if match_sets?
+        reaction = match_set(pattern)
         return reaction if reaction
       end
 
-      if pattern.start_topic_segment? && pattern.suffix.null_key? && template
-        return Reaction.new(template)
+      if children.key?("^")
+        reaction = match_wildcard(pattern, children["^"], greedy: true)
+        return reaction if reaction
       end
 
-      return nil
+      if children.key?("*")
+        reaction = match_wildcard(pattern, children["*"], min_match: 1)
+        return reaction if reaction
+      end
+
+      if pattern.start_context_segment?
+        reaction = get_reaction(pattern.next_segment)
+        return reaction if reaction
+      end
+
+      nil
     end
+
+    private
 
     def sets
       @sets ||= children.keys.select{|key| key.is_a? AIML::Tags::MatchSet }
     end
 
-    def search_suffixes(pattern, graph, greedy: false)
-      index = 1
-      memo = pattern
-      segment = pattern.current_segment
-      current_reaction = nil
-      current_index = nil
-      while memo = memo.suffix and memo.current_segment == segment
-        reaction = graph.get_reaction(memo)
-        if reaction
-          current_reaction = reaction
-          current_index = index
-        end
-        return current_reaction, current_index if current_reaction && !greedy
-        index += 1
-      end
-      return current_reaction, current_index
+    def match_sets?
+      sets.any?
     end
 
-    def filter_reaction(reaction, options={})
-      return nil unless reaction
-      if options[:exclude].is_a?(Array) and options[:exclude].includes?(reaction.template)
-        nil
-      else
-        reaction
+    def match_wildcard(pattern, graph, greedy: false, min_match: 0)
+      return unless min_match <= pattern.current_segment_size
+      result = nil
+      if pattern.start_context_segment?
+        result = graph.get_reaction(pattern)
       end
+      if result.nil? and pattern.current_segment_size >= min_match
+        result = search_suffixes(pattern, graph, greedy: greedy, min_match: min_match)
+      end
+      if result.nil? and graph.template and pattern.current_segment_size >= min_match
+        result = Reaction.new(graph.template).tap{ |r| r.add_match_group(pattern.current_segment_type, pattern.current_segment) }
+      end
+      result
+    end
+
+    def search_suffixes(pattern, graph, greedy: false, min_match: 0)
+      index = min_match
+      memo = pattern.safe_suffix(index)
+      result = nil
+      while memo
+        if reaction = graph.get_reaction(memo)
+          reaction.add_match_group(pattern.current_segment_type, pattern.path[0...index])
+          result = reaction
+        end
+        return result unless memo.key_matchable? && ( result.nil? || greedy )
+        index += 1
+        memo = memo.safe_suffix
+      end
+      result
+    end
+
+    def match_set(pattern)
+      result = nil
+      current_depth = 0
+      sets.each do |set|
+        next unless match = set.match(pattern)
+        depth = match.depth
+        next unless depth > current_depth
+        reaction = children[set].get_reaction(pattern.suffix(depth))
+        if reaction
+          reaction.add_match_group(pattern.current_segment_type, match.template)
+          result = reaction
+          current_depth = depth
+        end
+      end
+      result
     end
 
   end

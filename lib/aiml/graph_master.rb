@@ -18,11 +18,11 @@ module AIML
     end
 
     def learn(category)
-      @graph.learn(category, category.path.dup)
+      graph.learn(category, category.path.dup)
     end
 
     def learn_set_element(element)
-      @sets.learn(element, element.path.dup)
+      sets.learn(element, element.path.dup)
     end
 
     def to_s
@@ -38,10 +38,8 @@ module AIML
       render(reaction, context).join.gsub(/\s+/,' ').strip if reaction
     end
 
-    def match_set(pattern, options)
-      index = 0
-      reaction = sets.get_reaction(pattern, options) { |_| index += 1 }
-      return index, reaction if reaction
+    def match_set(pattern)
+      sets.get_reaction(pattern)
     end
 
     def render(reaction, context=AIML::History.new)

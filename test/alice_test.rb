@@ -74,7 +74,6 @@ describe "Alice" do
     @alice.get_reaction("bad answer").must_equal "Would you like to teach me a new answer to \"I have a dog named 'Winston'.\"?"
     @alice.get_reaction("yes").must_equal "OK, what should I have said?"
     @alice.get_reaction("That is a cool name!").must_equal "\"That is a cool name!...\"? Does this depend on me having just said, \"Yes I am inspired by Commander Data's artificial personality.\"?"
-    $stop = true
     @alice.get_reaction("no").must_equal "I'll try to remember to respond, \"That is a cool name!\" when you say, \"I have a dog named 'Winston'.\""
     @alice.get_reaction("I have a dog named 'Winston'.").must_equal "That is a cool name!"
 
