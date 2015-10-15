@@ -1,14 +1,6 @@
 module AIML::Listeners
   class Template < Base
 
-    TAGS = [AIML::Tags::Template, AIML::Tags::Star, AIML::Tags::Random,
-            AIML::Tags::Question, AIML::Tags::Condition, AIML::Tags::Set,
-            AIML::Tags::Think, AIML::Tags::Srai, AIML::Tags::Command]
-
-    def self.tag_names
-      TAGS.map { |klass| klass.tag_names }.flatten
-    end
-
     attr_reader :learner
 
     def initialize(context, learner)
@@ -16,8 +8,8 @@ module AIML::Listeners
       super(context)
     end
 
-    def start_element(uri, localname, qname, attributes)
-      if AIML::Tags::Template.tag_names.include?(localname)
+    def start_element(uri, local_name, qname, attributes)
+      if AIML::Tags::Template.tag_names.include?(local_name)
         expect_current_tag_is AIML::Tags::Category
         template = AIML::Tags::Template.new
         current_tag.template = template
@@ -27,29 +19,26 @@ module AIML::Listeners
 
       return unless open_template?
 
-      case localname
+      case local_name
 
         when *AIML::Tags::Star.tag_names
-          add_tag AIML::Tags::Star.new(localname, attributes)
+          add_tag AIML::Tags::Star.new(local_name, attributes)
 
         when *AIML::Tags::Random.tag_names
-          attributes['name'] ||= localname
+          attributes['name'] ||= local_name
           add_tag AIML::Tags::Random.new(attributes)
-
-        when *AIML::Tags::Question.tag_names
-          add_tag AIML::Tags::Question.new
 
         when *AIML::Tags::Condition.tag_names
           add_tag AIML::Tags::Condition.new(attributes)
 
         when *AIML::Tags::Set.tag_names
-          add_tag AIML::Tags::Set.new(localname, attributes)
+          add_tag AIML::Tags::Set.new(local_name, attributes)
 
         when *AIML::Tags::Think.tag_names
           add_tag AIML::Tags::Think.new
 
         when *AIML::Tags::Srai.tag_names
-          object = localname == 'sr' ? AIML::Tags::Star.new('star') : nil
+          object = local_name == 'sr' ? AIML::Tags::Star.new('star') : nil
           add_tag AIML::Tags::Srai.new(object)
 
         when *AIML::Tags::Command.tag_names
@@ -71,6 +60,11 @@ module AIML::Listeners
           expect_open AIML::Tags::Learn
           add_tag AIML::Tags::Eval.new
 
+        when *AIML::Tags::ReadVariable.tag_names
+          add_to_tag AIML::Tags::ReadVariable.new(local_name, attributes)
+
+        when *AIML::Tags::ReadProperty.tag_names
+          add_to_tag AIML::Tags::ReadProperty.new(local_name, attributes)
       end
     end
 
@@ -97,7 +91,7 @@ module AIML::Listeners
       end
     end
 
-    def end_element(uri, localname, qname)
+    def end_element(uri, local_name, qname)
       open_template? and super
     end
 

@@ -123,13 +123,8 @@ Client: I admire robots like you.
  </category>
 
  <category>
-  <pattern>think test. i am male</pattern>
+  <pattern>think test i am male</pattern>
   <template>ok.<think><get_gender/></think></template>
- </category>
-
- <category>
-  <pattern>question test</pattern>
-  <template><question/></template>
  </category>
 
  <category>

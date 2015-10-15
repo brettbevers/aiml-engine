@@ -20,8 +20,6 @@ describe "Alice" do
 
     @alice.get_reaction("You sound...like Data!!").must_equal "Yes I am inspired by Commander Data's artificial personality."
 
-    @alice.get_reaction("You sound\nlike Data!!").must_equal "Yes I am inspired by Commander Data's artificial personality."
-
     @alice.get_reaction("can you walk down the hall").must_equal "The plan for my body includes legs, but they are not yet built."
     @alice.get_reaction("did Turing graduate?").must_equal "I know Turing invented the modern computer."
     @alice.get_reaction("who is he").must_equal "He is Turing, I think."
@@ -47,16 +45,9 @@ describe "Alice" do
 
     @alice.get_reaction("DO YOU KNOW PANDORABOTS").must_equal "Pandorabots is an online web hosting service for AIML chat robots. Check out http://www.pandorabots.com."
 
-    @alice.get_reaction("Who is your favorite AI?").must_equal "infobot the chat robot."
-
     @alice.get_reaction("I have a dog named 'Winston'.")
     @alice.get_reaction("you should remember").must_equal "Don't worry I will remember it."
     @alice.get_reaction("WHAT WILL YOU REMEMBER").must_equal "you have a dog named 'Winston'."
-
-    [
-        "My botmaster is Beves.",
-        "I obey Beves."
-    ].must_include @alice.get_reaction("BOTMASTER")
 
     [
         "I am doing very well. How are you client ?",

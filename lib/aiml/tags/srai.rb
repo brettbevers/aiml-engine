@@ -11,15 +11,17 @@ module AIML
       end
 
       def to_path(context)
-        body.map do |token|
-          token.to_s(context).upcase.strip.split(/\s+/)
-        end
+        body.map { |token|
+          process(token.to_s(context))
+        }.flatten
       end
 
       def to_pattern(context)
         stimulus = to_path(context)
-        path = [stimulus, THAT, process_string(context.that), TOPIC, process_string(context.topic)].flatten
-        AIML::Tags::Pattern.new(path: path, stimulus: stimulus, that: context.that, topic: context.topic)
+        that = process_that(context.that)
+        topic = process_topic(context.topic)
+        path = [stimulus, THAT, that, TOPIC, topic].flatten
+        AIML::Tags::Pattern.new(path: path, stimulus: stimulus, that: that, topic: topic)
       end
 
       def to_s(context)
@@ -30,8 +32,18 @@ module AIML
 
       private
 
-      def process_string(str)
-        AIML::Tags::Pattern.process_string(str)
+      def process(obj)
+        AIML::Tags::Pattern.process(obj)
+      end
+
+      def process_that(that)
+        result = process(that)
+        result.empty? ? [UNDEF] : result
+      end
+
+      def process_topic(topic)
+        result = process(topic)
+        result.empty? ? [DEFAULT] : result
       end
 
     end

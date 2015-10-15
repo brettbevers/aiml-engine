@@ -3,7 +3,6 @@ require_relative 'aiml_elements'
 require_relative 'listeners/pattern'
 require_relative 'listeners/that'
 require_relative 'listeners/template'
-require_relative 'listeners/list_item'
 
 module AIML
   class Parser
@@ -21,22 +20,22 @@ module AIML
 
       ### topic
       @parser.listen(%w{ topic }) { |uri, local_name, qname, attributes|
-        raise "Cannot overwrite topic" if context.topic
-        context.topic = attributes['name']
+        raise "Cannot overwrite topic" if context.topic?
+        context.topic = AIML::Tags::Pattern.process(attributes['name'])
       }
 
       @parser.listen(:end_element, %w{ topic }) {
-        context.topic = nil
+        context.topic = []
       }
       ### end topic
 
       ### category
       @parser.listen(AIML::Tags::Category.tag_names) { |uri, local_name, qname, attributes|
         if context.current_tag_is? AIML::Tags::Learn
-          context.add_tag AIML::Tags::Category.new(attributes['topic'])
+          context.add_tag AIML::Tags::Category.new(AIML::Tags::Pattern.process(attributes['topic']))
         else
           context.expect_not_open AIML::Tags::Category, AIML::Tags::Pattern, AIML::Tags::Template, AIML::Tags::That
-          context.push_tag AIML::Tags::Category.new(attributes['topic'] || context.topic)
+          context.push_tag AIML::Tags::Category.new(AIML::Tags::Pattern.process(attributes['topic']) || context.topic)
         end
       }
 
@@ -83,10 +82,6 @@ module AIML
       ### end gender / person / person2
 
       ### self-terminating tags
-      @parser.listen(AIML::Tags::ReadOnly.tag_names) { |uri, local_name, qname, attributes|
-        context.add_to_tag AIML::Tags::ReadOnly.new(local_name, attributes)
-      }
-
       @parser.listen(%w{ br }) {
         context.add_to_tag "\n"
       }
@@ -152,6 +147,7 @@ module AIML
 
       def initialize(open_tags=nil)
         @open_tags = open_tags || []
+        @topic = []
       end
 
       def push_tag(value)
@@ -241,6 +237,10 @@ module AIML
 
       def expect_current_tag_is(*klasses_and_tag_names)
         expect_tag_is tag, *klasses_and_tag_names
+      end
+
+      def topic?
+        topic && topic.any?
       end
     end
 

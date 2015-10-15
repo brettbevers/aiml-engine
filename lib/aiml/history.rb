@@ -3,18 +3,17 @@ require 'yaml'
 module AIML
   class History
 
-    DEFAULT_ATTRIBUTES = YAML::load(File.open(File.dirname(__FILE__) + "/../../conf/readOnlyTags.yaml"))
-
     attr_accessor :topic
-    attr_reader :inputs, :responses, :environment, :reactions, :graph_masters
+    attr_reader :inputs, :responses, :environment, :properties, :reactions, :graph_masters
 
     def initialize(attrs={})
-      @topic          = attrs[:topic]           || AIML::DEFAULT
-      @inputs         = attrs[:inputs]          || []
-      @responses      = attrs[:responses]       || []
-      @reactions      = attrs[:reactions]       || []
-      @graph_masters  = attrs[:graph_masters]   || []
-      @environment    = attrs[:environment]     || DEFAULT_ATTRIBUTES.dup
+      @topic          = attrs[:topic]           || [AIML::DEFAULT]
+      @inputs         = attrs[:inputs]          || Array.new
+      @responses      = attrs[:responses]       || Array.new
+      @reactions      = attrs[:reactions]       || Array.new
+      @graph_masters  = attrs[:graph_masters]   || Array.new
+      @environment    = attrs[:environment]     || Hash.new
+      @properties     = attrs[:properties]      || Hash.new
     end
 
     def dump
@@ -23,8 +22,13 @@ module AIML
           inputs: inputs,
           responses: responses,
           reactions: reactions,
-          environment: environment
+          environment: environment,
+          properties: properties
       }
+    end
+
+    def load_properties(new_properties)
+      properties.merge!(new_properties)
     end
 
     def star_greedy
@@ -42,14 +46,21 @@ module AIML
       @reactions[-1].topic_star
     end
 
-    def get(tag)
+    def get_property(tag)
       tag = tag.to_s
-      if environment.key?(tag)
-        environment[tag]
-      elsif tag =~ /that$/
-        send(tag)
-      elsif tag == 'topic'
+      if properties.key?(tag)
+        properties[tag]
+      else
+        ''
+      end
+    end
+
+    def get_variable(tag)
+      tag = tag.to_s
+      if tag == 'topic'
         topic
+      elsif environment.key?(tag)
+        environment[tag]
       else
         ''
       end
@@ -58,7 +69,7 @@ module AIML
     def set(tag, value)
       case tag
         when 'topic'
-          self.topic = value
+          self.topic = AIML::Tags::Pattern.process(value)
         else
           environment[tag.to_s] = value
       end
@@ -67,18 +78,6 @@ module AIML
 
     def that(index=1)
       responses[index-1] || UNDEF
-    end
-
-    def justbeforethat
-      responses[1] || UNDEF
-    end
-
-    def justthat
-      inputs[0] || UNDEF
-    end
-
-    def beforethat
-      inputs[1] || UNDEF
     end
 
     def star(index)
@@ -107,20 +106,12 @@ module AIML
       environment[:gender] = 'female'
     end
 
-    def question
-      get_random(environment[:question])
+    def update_response(sentences)
+      responses.unshift(sentences)
     end
 
-    def get_random(choices)
-      choices[rand(choices.length)]
-    end
-
-    def update_response(response)
-      responses.unshift(response)
-    end
-
-    def update_stimulus(raw_stimulus)
-      inputs.unshift(raw_stimulus)
+    def update_input(sentences)
+      inputs.unshift(sentences)
     end
 
     def get_stimulus(index)

@@ -10,6 +10,19 @@ module AIML
       @children = Hash.new { |hash, key| hash[key] = Node.new }
     end
 
+    def self.with_context(context)
+      @@context = context
+      result = nil
+      result = yield if block_given?
+    ensure
+      @@context = nil
+      result
+    end
+
+    def context
+      @@context
+    end
+
     def inspectNode(nodeId = nil, ind = 0)
       str = ''
       str += '| '*(ind - 1) + "|_#{nodeId}" unless ind == 0
@@ -73,8 +86,18 @@ module AIML
         end
       end
 
+      if match_variables?
+        reaction = match_variable(pattern)
+        return reaction if reaction
+      end
+
       if match_sets?
         reaction = match_set(pattern)
+        return reaction if reaction
+      end
+
+      if match_properties?
+        reaction = match_property(pattern)
         return reaction if reaction
       end
 
@@ -99,7 +122,7 @@ module AIML
     private
 
     def sets
-      @sets ||= children.keys.select{|key| key.is_a? AIML::Tags::MatchSet }
+      @sets ||= children.keys.select { |key| key.is_a? AIML::Tags::MatchSet }
     end
 
     def match_sets?
@@ -152,6 +175,38 @@ module AIML
         end
       end
       result
+    end
+
+    def properties
+      @properties ||= children.keys.select { |key| key.is_a? AIML::Tags::MatchProperty }
+    end
+
+    def match_properties?
+      properties.any?
+    end
+
+    def match_property(pattern)
+      properties.each do |property|
+        match = property.match(pattern, children[property], context)
+        return match if match
+      end
+      nil
+    end
+
+    def variables
+      @variables ||= children.keys.select { |key| key.is_a? AIML::Tags::MatchVariable }
+    end
+
+    def match_variables?
+      variables.any?
+    end
+
+    def match_variable(pattern)
+      variables.each do |variable|
+        match = variable.match(pattern, children[variable], context)
+        return match if match
+      end
+      nil
     end
 
   end

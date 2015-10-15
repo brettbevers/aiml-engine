@@ -10,9 +10,9 @@ module AIML
 
       @@cardinality = 0
 
-      def initialize(topic=nil)
+      def initialize(topic=[])
         @@cardinality += 1
-        @topic = topic.strip.upcase.split(/\s+/) if topic
+        @topic = topic
       end
 
       def self.cardinality
@@ -21,8 +21,8 @@ module AIML
 
       def path
         result = pattern.stimulus
-        result += [AIML::THAT, that.path] if that
-        result += [AIML::TOPIC, topic] if topic
+        result += [AIML::THAT, that.path] if that  && that.path.any?
+        result += [AIML::TOPIC, topic]    if topic && topic.any?
         result.flatten
       end
 

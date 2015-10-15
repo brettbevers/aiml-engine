@@ -26,16 +26,10 @@ describe "Facade" do
     assert_equal(AIML::Tags::Category.cardinality.to_s,
                  @robot.get_reaction('SIZE TEST'))
     assert_equal("TEST SPACE", @robot.get_reaction("SPACE TEST"))
-    assert_equal('infobot', @robot.get_reaction('get test 1'))
-    assert_equal('TEST SPACE', @robot.get_reaction('justbeforethat tag test'))
     assert_equal('TEST SPACE', @robot.get_reaction('that tag test'))
-    assert_includes(
-        ['are you never tired to do the same things every day?', 'Say something nice to me'],
-        @robot.get_reaction('question test')
-    )
-    assert_equal('localhost', @robot.get_reaction('get test 2'))
-    assert_equal('ok.', @robot.get_reaction('think test. i am male'))
-    assert_equal('male.female.female', @robot.get_reaction('test set'))
+    assert_equal('TEST SPACE', @robot.get_reaction('justbeforethat tag test'))
+    assert_equal('ok.', @robot.get_reaction('think test i am male'))
+    assert_equal('.female.female', @robot.get_reaction('test set'))
     assert_equal('You sound very attractive.', @robot.get_reaction('I AM BLOND'))
     assert_equal('You sound very attractive.', @robot.get_reaction('I AM RED'))
     assert_equal('You sound very attractive.', @robot.get_reaction('I AM BLACK'))

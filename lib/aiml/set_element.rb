@@ -5,8 +5,8 @@ module AIML
     attr_reader :set_name, :body, :path
 
     def initialize(set_name, text)
-      @set_name = AIML::Tags::Pattern.process_string(set_name)
-      @body = AIML::Tags::Pattern.process_string(text)
+      @set_name = AIML::Tags::Pattern.process(set_name)
+      @body = AIML::Tags::Pattern.process(text)
       @path = @set_name + @body
     end
 

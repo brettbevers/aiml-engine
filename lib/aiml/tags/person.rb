@@ -24,7 +24,7 @@ module AIML
         body.each { |token|
           result += token.to_s(context)
         }
-        gender = context.get('gender')
+        gender = context.get_property('gender')
         result.gsub!(/\b(she|he|i|me|my|myself|mine)\b/i) {
           SWAP[gender][$1.downcase]
         }

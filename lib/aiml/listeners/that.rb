@@ -1,8 +1,8 @@
 module AIML::Listeners
   class That < Base
 
-    def start_element(uri, localname, qname, attributes)
-      if AIML::Tags::That.tag_names.include?(localname)
+    def start_element(uri, local_name, qname, attributes)
+      if AIML::Tags::That.tag_names.include?(local_name)
         if current_tag_is? AIML::Tags::Category
           that = AIML::Tags::That.new
           current_tag.that = that
@@ -17,7 +17,7 @@ module AIML::Listeners
       open_that? && !open_template? && !open_pattern? and super
     end
 
-    def end_element(uri, localname, qname)
+    def end_element(uri, local_name, qname)
       open_that? && !open_template? && !open_pattern? and super
     end
 

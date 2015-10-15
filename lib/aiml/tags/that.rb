@@ -18,8 +18,8 @@ module AIML
 
       def add(object)
         case object
-          when String
-            @body = @body + AIML::Tags::Pattern.process_string(object)
+          when String, Array
+            @body = @body + AIML::Tags::Pattern.process(object)
           else
             body.push(object)
         end
@@ -28,14 +28,14 @@ module AIML
       def to_s(context=nil)
         input = context.that(first_index.to_i)
         if second_index == '*'
-          return input
+          return input.join(' ')
         else
-          return input.split(/(\.\?!\n)\s*/)[second_index.to_i-1]
+          return input[second_index.to_i-1]
         end
       end
 
       def inspect
-        "that #{first_index},#{second_index}"
+        "that #{first_index},#{second_index} "
       end
 
     end

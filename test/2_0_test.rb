@@ -11,6 +11,11 @@ describe "AIML 2.0" do
     @robot.learn('test/data/2_0_test')
   end
 
+  it "parses sentences" do
+    @robot.get_reaction("My favorite color is red. My favorite color is Air Force blue.").
+        must_equal "RED is a nice color. AIR FORCE BLUE is a nice color."
+  end
+
   it "matches sets" do
     @robot.get_reaction("My favorite color is red").must_equal "RED is a nice color."
     @robot.get_reaction("My favorite color is Air Force blue").must_equal "AIR FORCE BLUE is a nice color."
@@ -70,7 +75,13 @@ describe "AIML 2.0" do
 
   end
 
-  it "loads default predicates" do
+  it "gets and sets properties" do
+    @robot.get_reaction("Are you Hubert?").must_equal "Yes, I am."
+    @robot.get_reaction("Who are you?").must_equal "I am Hubert."
+    @robot.get_reaction("Are you Bob?").must_equal ""
+  end
+
+  it "gets and sets predicates" do
 
   end
 

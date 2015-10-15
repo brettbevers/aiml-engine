@@ -7,13 +7,13 @@ module AIML::Tags
 
     SEGMENTER = /^\s*(.*?)?(\s*(?<!#{AIML::THAT})#{AIML::THAT}\s+(.*?))?(\s*(?<!#{AIML::TOPIC})#{AIML::TOPIC}\s+(.*?))?\s*$/
 
-    attr_accessor :raw_stimulus, :that, :topic, :current_segment_type
+    attr_accessor :sentence, :that, :topic, :current_segment_type
 
-    def initialize(raw_stimulus: nil, path: nil, stimulus: nil,
+    def initialize(sentence: nil, path: nil, stimulus: nil,
                    that: [AIML::UNDEF], topic: [AIML::DEFAULT], current_segment_type: :stimulus)
-      @raw_stimulus = raw_stimulus
-      @that = that.is_a?(String) ? process_string(that) : that
-      @topic = that.is_a?(String) ? process_string(topic) : topic
+      @sentence = sentence
+      @that = process(that)
+      @topic = process(topic)
       @path = path
       @stimulus = stimulus
       @current_segment_type = current_segment_type
@@ -33,7 +33,7 @@ module AIML::Tags
     end
 
     def stimulus
-      @stimulus ||= process_string(raw_stimulus) || []
+      @stimulus ||= process(sentence) || []
     end
     alias_method :body, :stimulus
 
@@ -44,7 +44,7 @@ module AIML::Tags
     def add(object)
       case object
         when String
-          self.stimulus += process_string(object)
+          self.stimulus += process(object)
         else
           stimulus.push(object)
       end
@@ -171,8 +171,23 @@ module AIML::Tags
           split(/\s+/)
     end
 
-    def process_string(str)
-      self.class.process_string(str)
+    def self.process_array(ary)
+      ary.map{|obj| process(obj)}.flatten
+    end
+
+    def self.process(obj)
+      case obj
+        when String
+          process_string(obj)
+        when Array
+          process_array(obj)
+        else
+          obj
+      end
+    end
+
+    def process(str)
+      self.class.process(str)
     end
 
     def reprocess_stimulus

@@ -6,14 +6,10 @@ module AIML
 
       def initialize(attributes)
         @body = []
-        name = attributes['name']
-        if name && name != 'random'
-          body.push AIML::Tags::ReadOnly.new(name)
-        end
       end
 
       def to_s(context)
-        context.get_random(body).to_s(context)
+        body[rand(body.length)].to_s(context)
       end
 
       def inspect

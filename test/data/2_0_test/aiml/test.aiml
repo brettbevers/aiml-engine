@@ -141,4 +141,14 @@ Repeated Repeated
 
 </topic>
 
+<category>
+<pattern>ARE YOU <bot name="name"/></pattern>
+<template>Yes, I am.</template>
+</category>
+
+<category>
+<pattern>WHO ARE YOU</pattern>
+<template>I am <bot name="name"/>.</template>
+</category>
+
 </aiml>

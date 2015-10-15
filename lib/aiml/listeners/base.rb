@@ -15,8 +15,8 @@ module AIML::Listeners
       add_to_tag text
     end
 
-    def end_element(uri, localname, qname)
-      pop_tag if current_tag_is? localname
+    def end_element(uri, local_name, qname)
+      pop_tag if current_tag_is? local_name
     end
 
     def current_tag

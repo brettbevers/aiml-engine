@@ -29,12 +29,14 @@ module AIML
       graph.inspectNode
     end
 
-    def get_reaction(pattern)
-      graph.get_reaction(pattern)
+    def get_reaction(pattern, context)
+      AIML::Node.with_context(context) do
+        graph.get_reaction(pattern)
+      end
     end
 
     def render_reaction(pattern, context)
-      reaction = get_reaction(pattern)
+      reaction = get_reaction(pattern, context)
       render(reaction, context).join.gsub(/\s+/,' ').strip if reaction
     end
 

@@ -16,14 +16,14 @@ module AIML
       def to_s(context=nil)
         input = context.get_stimulus(first_index.to_i)
         if second_index == '*'
-          return input
+          input.join('. ')
         else
-          return input.split(/(\.\?!\n)\s*/)[second_index.to_i-1]
+          input[second_index.to_i-1]
         end
       end
 
       def inspect
-        "input #{index}"
+        "input #{first_index},#{second_index} "
       end
 
     end
