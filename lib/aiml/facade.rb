@@ -1,6 +1,7 @@
 require_relative 'graph_master'
 require_relative 'parser'
 require_relative 'set_parser'
+require_relative 'map_parser'
 require_relative 'history'
 require_relative 'utils'
 require_relative 'tags/pattern'
@@ -10,12 +11,13 @@ module AIML
 
     INPUT_SEPARATOR = /\.\s+|\?\s+|!\s+|\n/
 
-    attr_reader :context, :graph_master, :parser, :set_parser, :default_properties
+    attr_reader :context, :graph_master, :parser, :set_parser, :map_parser, :default_properties
 
     def initialize(cache = nil)
       @graph_master       = GraphMaster.new
       @parser             = Parser.new(@graph_master)
       @set_parser         = SetParser.new(@graph_master)
+      @map_parser         = MapParser.new(@graph_master)
       @context            = History.new
       @default_properties = Hash.new
     end
@@ -23,6 +25,8 @@ module AIML
     def learn(files)
       FileFinder::find_aiml(files).each{|f| File.open(f,'r'){|io| @parser.parse io} }
       FileFinder::find_sets(files).each{|f| File.open(f,'r'){|io| @set_parser.parse io} }
+      FileFinder::find_maps(files).each{|f| File.open(f,'r'){|io| @map_parser.parse io} }
+
       FileFinder::find_properties(files).each do |f|
         File.open(f,'r') do |io|
           properties = Hash[YAML::load(io)]

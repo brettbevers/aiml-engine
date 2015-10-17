@@ -81,6 +81,10 @@ module AIML::Tags
       @null_key ||= null?(key)
     end
 
+    def return?
+      key == AIML::PATTERN_RETURN
+    end
+
     def null?(value)
       [AIML::DEFAULT, AIML::UNDEF].include?(value)
     end

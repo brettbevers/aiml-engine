@@ -151,4 +151,53 @@ Repeated Repeated
 <template>I am <bot name="name"/>.</template>
 </category>
 
+<category>
+<pattern>WHO AM I</pattern>
+<template>You are <get name="name"/>.</template>
+</category>
+
+<category>
+<pattern>My name is ^</pattern>
+<template>OK, your name is <set name="name"><star/></set>.</template>
+</category>
+
+<category>
+<pattern>What is the capital of ^</pattern>
+<template><map name="state2capital"><star/></map></template>
+</category>
+
+<category><pattern>QUESTIONWORD <set>name</set></pattern>
+<template>Who</template>
+</category>
+<category><pattern>QUESTIONWORD <set>name</set> *</pattern>
+<template>Who</template>
+</category>
+<category><pattern>QUESTIONWORD *</pattern>
+<template>What</template>
+</category>
+<category><pattern>* <set>verb2sp</set> *</pattern>
+<template><think>
+<set name="learnpattern"><srai>QUESTIONWORD <star/></srai> <star index="2"/> <person><star index="3"/></person></set>?
+<set name="learntemplate"><star/></set>.
+<learn>
+  <category>
+  <pattern><eval><get name="learnpattern"/></eval></pattern>
+  <template><eval><get name="learntemplate"/></eval></template>
+  </category>
+</learn>
+</think>
+Now you can ask me: "<get name="learnpattern"/>?"
+<think>
+<set name="learnpattern">What does <star/> <map name="verb2sp2verb1sp"><star index="2"/></map></set>?
+<set name="learntemplate"><person><star index="3"/></person></set>.
+<learn>
+  <category>
+  <pattern><eval><get name="learnpattern"/></eval></pattern>
+  <template><eval><get name="learntemplate"/></eval></template>
+  </category>
+</learn>
+</think>
+and "<get name="learnpattern"/>?"</template>
+</category>
+
 </aiml>

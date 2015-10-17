@@ -28,4 +28,5 @@ require_relative 'tags/eval'
 require_relative 'tags/match_set'
 require_relative 'tags/match_property'
 require_relative 'tags/match_variable'
+require_relative 'tags/map'
 

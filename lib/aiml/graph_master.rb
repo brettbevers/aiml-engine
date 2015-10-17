@@ -5,12 +5,12 @@ require_relative 'node'
 module AIML
 
   class GraphMaster
-    attr_reader :graph
-    attr_accessor :sets
+    attr_reader :graph, :sets, :maps
 
     def initialize
       @graph = Node.new
       @sets  = Node.new
+      @maps  = Node.new
     end
 
     def merge(aCache)
@@ -18,30 +18,37 @@ module AIML
     end
 
     def learn(category)
-      graph.learn(category, category.path.dup)
+      graph.learn(category, category.path)
     end
 
     def learn_set_element(element)
-      sets.learn(element, element.path.dup)
+      sets.learn(element, element.path)
+    end
+
+    def learn_map_element(element)
+      maps.learn(element, element.path)
     end
 
     def to_s
       graph.inspectNode
     end
 
-    def get_reaction(pattern, context)
-      AIML::Node.with_context(context) do
-        graph.get_reaction(pattern)
-      end
-    end
-
     def render_reaction(pattern, context)
-      reaction = get_reaction(pattern, context)
-      render(reaction, context).join.gsub(/\s+/,' ').strip if reaction
+      AIML::Node.with_context(context) do
+        reaction = graph.get_reaction(pattern)
+        render(reaction, context) if reaction
+      end
     end
 
     def match_set(pattern)
       sets.get_reaction(pattern)
+    end
+
+    def map(pattern, context)
+      AIML::Node.with_context(context) do
+        reaction = maps.get_reaction(pattern)
+        reaction ? render(reaction, context) : AIML::UNKNOWN
+      end
     end
 
     def render(reaction, context=AIML::History.new)
@@ -53,7 +60,7 @@ module AIML
       end
       context.reactions.pop
       context.graph_masters.pop
-      result.flatten
+      result.flatten.join.gsub(/\s+/,' ').strip
     end
 
   end

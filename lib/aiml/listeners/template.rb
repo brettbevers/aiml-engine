@@ -65,6 +65,9 @@ module AIML::Listeners
 
         when *AIML::Tags::ReadProperty.tag_names
           add_to_tag AIML::Tags::ReadProperty.new(local_name, attributes)
+
+        when *AIML::Tags::Map.tag_names
+          add_tag AIML::Tags::Map.new(learner, attributes)
       end
     end
 

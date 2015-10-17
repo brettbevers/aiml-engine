@@ -39,6 +39,7 @@ module AIML
     end
 
     def get_reaction(pattern)
+
       if pattern.satisfied?(children)
         result = if children.key?("#") && children["#"].template
                    Reaction.new(children["#"].template)
@@ -46,6 +47,9 @@ module AIML
                    Reaction.new(template)
                  elsif children.key?("^") && children["^"].template
                    Reaction.new(children["^"].template)
+                 elsif children.key?(AIML::RETURN)
+                   t = children[AIML::RETURN].template
+                   Reaction.new(t) if t
                  end
         return result
       end
@@ -114,6 +118,11 @@ module AIML
       if pattern.start_context_segment?
         reaction = get_reaction(pattern.next_segment)
         return reaction if reaction
+      end
+
+      if children.key?(AIML::RETURN)
+        t = children[AIML::RETURN].template
+        return Reaction.new(t) if t
       end
 
       nil

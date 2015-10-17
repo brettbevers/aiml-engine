@@ -27,7 +27,6 @@ module AIML
         path = prefix + pattern.path
         that = pattern.that
         topic = pattern.topic
-        binding.pry if topic.is_a?(String)
         current_segment_type = pattern.current_segment_type
         prefixed_pattern = AIML::Tags::Pattern.new(path: path, that: that, topic: topic, current_segment_type: current_segment_type)
         response = graph_master.match_set(prefixed_pattern)

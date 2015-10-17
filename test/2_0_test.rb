@@ -68,25 +68,31 @@ describe "AIML 2.0" do
   end
 
   it "maps" do
+    @robot.get_reaction("what is the capital of California?").must_equal "SACRAMENTO"
+    @robot.get_reaction("what is the capital of the Moon?").must_equal "UNKNOWN"
+    @robot.get_reaction("joe does work").must_equal "Now you can ask me: \"Who DOES WORK?\" and \"What does JOE DO?\""
+    @robot.get_reaction("Who does work?").must_equal "JOE"
+    @robot.get_reaction("What does joe do?").must_equal "WORK"
 
+    @robot.get_reaction("Mercedes makes really expensive cars.").must_equal "Now you can ask me: \"What MAKES REALLY EXPENSIVE CARS?\" and \"What does MERCEDES MAKE?\""
+    @robot.get_reaction("What makes really expensive cars?").must_equal "MERCEDES"
+    @robot.get_reaction("What does MERCEDES make?").must_equal "REALLY EXPENSIVE CARS"
   end
 
   it "substitutes" do
 
   end
 
-  it "gets and sets properties" do
+  it "reads and matches properties" do
     @robot.get_reaction("Are you Hubert?").must_equal "Yes, I am."
     @robot.get_reaction("Who are you?").must_equal "I am Hubert."
     @robot.get_reaction("Are you Bob?").must_equal ""
   end
 
   it "gets and sets predicates" do
-
-  end
-
-  it "loads default properties" do
-
+    @robot.get_reaction("My name is Bob").must_equal "OK, your name is BOB."
+    @robot.get_reaction("Who are you?").must_equal "I am Hubert."
+    @robot.get_reaction("Who am I?").must_equal "You are BOB."
   end
 
   it "reacts" do

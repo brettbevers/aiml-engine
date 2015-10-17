@@ -1,13 +1,14 @@
 module AIML
 
-  class SetElement
+  class MapElement
 
-    attr_reader :set_name, :body, :path
+    attr_reader :map_name, :key, :body, :path
 
-    def initialize(set_name, text)
-      @set_name = AIML::Tags::Pattern.process(set_name)
-      @body = AIML::Tags::Pattern.process(text)
-      @path = @set_name + @body + [AIML::RETURN]
+    def initialize(map_name, key, value)
+      @map_name = AIML::Tags::Pattern.process(map_name)
+      @key      = AIML::Tags::Pattern.process(key)
+      @body     = AIML::Tags::Pattern.process(value)
+      @path     = @map_name + @key
     end
 
     def template

@@ -4,10 +4,12 @@ require 'engtagger'
 require_relative 'aiml/config'
 
 module AIML
-  THAT    = '<that>'
-  TOPIC   = '<topic>'
-  UNDEF   = 'UNDEF'
-  DEFAULT = 'DEFAULT'
+  THAT      = '<that>'
+  TOPIC     = '<topic>'
+  UNDEF     = 'UNDEF'
+  DEFAULT   = 'DEFAULT'
+  UNKNOWN   = 'UNKNOWN'
+  RETURN    = [183].pack("U") # middle dot
 
   TAGGER = EngTagger.new
 
