@@ -95,8 +95,10 @@ describe "AIML 2.0" do
     @robot.get_reaction("Who am I?").must_equal "You are BOB."
   end
 
-  it "reacts" do
-
+  it "evaluates conditionals" do
+    @robot.get_reaction("He is going to Amsterdam").must_equal "Who is he?"
+    @robot.get_reaction("He is the president").must_equal "OK, he is THE PRESIDENT."
+    @robot.get_reaction("He is going to Amsterdam").must_equal "THE PRESIDENT is going to AMSTERDAM?"
   end
 
 end

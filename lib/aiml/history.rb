@@ -51,7 +51,7 @@ module AIML
       if properties.key?(tag)
         properties[tag]
       else
-        ''
+        AIML::UNKNOWN
       end
     end
 
@@ -62,7 +62,7 @@ module AIML
       elsif environment.key?(tag)
         environment[tag]
       else
-        ''
+        AIML::UNKNOWN
       end
     end
 

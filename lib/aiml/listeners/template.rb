@@ -29,7 +29,7 @@ module AIML::Listeners
           add_tag AIML::Tags::Random.new(attributes)
 
         when *AIML::Tags::Condition.tag_names
-          add_tag AIML::Tags::Condition.new(attributes)
+          add_tag AIML::Tags::Condition.new(local_name, attributes)
 
         when *AIML::Tags::Set.tag_names
           add_tag AIML::Tags::Set.new(local_name, attributes)
@@ -46,11 +46,11 @@ module AIML::Listeners
 
         when *AIML::Tags::ListItem.tag_names
           if current_tag_is? AIML::Tags::Condition
-            attributes['name'] ||= current_tag.property
-            attributes['value'] ||= current_tag.value
-            add_tag AIML::Tags::ListItem.new(attributes)
+            attributes['name'] ||= current_tag.name if current_tag.name?
+            attributes['value'] ||= current_tag.value if current_tag.value?
+            add_tag AIML::Tags::ListItem.new(local_name, attributes)
           elsif current_tag_is? AIML::Tags::Random
-            add_tag AIML::Tags::ListItem.new(attributes)
+            add_tag AIML::Tags::ListItem.new(local_name, attributes)
           end
 
         when *AIML::Tags::Learn.tag_names
@@ -78,7 +78,10 @@ module AIML::Listeners
 
         when AIML::Tags::Condition
           return if /^\s*$/ === text
-          li = AIML::Tags::ListItem.new('name' => current_tag.property, 'value' => current_tag.value)
+          attrs = {}
+          attrs['name'] ||= current_tag.name if current_tag.name?
+          attrs['value'] ||= current_tag.value if current_tag.value?
+          li = AIML::Tags::ListItem.new(attrs)
           li.add(text)
           add_to_tag li
 

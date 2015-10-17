@@ -6,16 +6,23 @@ module AIML
         %w{ li }
       end
 
-      attr_reader :attributes
       alias_method :template, :body
-
-      def initialize(attributes={})
-        @attributes = attributes
-        @body = []
-      end
 
       def inspect
         "list item #{attributes} -> #{body.map(&:inspect).join(' ')}"
+      end
+
+      def name
+        attributes['name']
+      end
+      alias_method :property, :name
+
+      def value
+        attributes['value']
+      end
+
+      def value?
+        attributes.key?('value')
       end
 
     end

@@ -200,4 +200,51 @@ Now you can ask me: "<get name="learnpattern"/>?"
 and "<get name="learnpattern"/>?"</template>
 </category>
 
+
+<category>
+<pattern>HE IS GOING TO *</pattern>
+<template>
+<condition name="he">
+<li value="UNKNOWN">Who is he?</li>
+<li><get name="he"/> is going to <star/>?</li>
+</condition>
+</template>
+</category>
+
+<category>
+<pattern>HE IS *</pattern>
+<that>Who is he?</that>
+<template>OK, he is <set name="he"><star/></set>.</template>
+</category>
+
+<category>
+<pattern>I AM *</pattern>
+<template>
+<think>
+<set name="isanumber"><srai>ISANUMBER <star/></srai></set>
+<set name="isaname"><srai>ISANAME <star/></srai></set>
+</think>
+<condition name="isanumber">
+<li value="true"><srai>MY AGE IS <star/></srai></li>
+<li>
+  <condition name="isaname">
+  <li value="true"><srai>MY NAME IS <star/></srai></li>
+  <li><srai>IAMRESPONSE</srai>
+  </li>
+  </condition>
+</li>
+</condition>
+</template>
+</category>
+
+<category><pattern>IS * EQUALTO *</pattern>
+<template>
+<think><set name="temp"><star/></set></think>
+<condition name="temp">
+<li><value><star index="2"/></value> true</li>
+<li>false</li>
+</condition>
+</template>
+</category>
+
 </aiml>
