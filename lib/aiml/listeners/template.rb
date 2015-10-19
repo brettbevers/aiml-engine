@@ -1,13 +1,6 @@
 module AIML::Listeners
   class Template < Base
 
-    attr_reader :learner
-
-    def initialize(context, learner)
-      @learner = learner
-      super(context)
-    end
-
     def start_element(uri, local_name, qname, attributes)
       if AIML::Tags::Template.tag_names.include?(local_name)
         expect_current_tag_is AIML::Tags::Category
@@ -26,7 +19,7 @@ module AIML::Listeners
 
         when *AIML::Tags::Random.tag_names
           attributes['name'] ||= local_name
-          add_tag AIML::Tags::Random.new(attributes)
+          add_tag AIML::Tags::Random.new
 
         when *AIML::Tags::Condition.tag_names
           add_tag AIML::Tags::Condition.new(local_name, attributes)
@@ -53,6 +46,12 @@ module AIML::Listeners
             add_tag AIML::Tags::ListItem.new(local_name, attributes)
           end
 
+        when *AIML::Tags::Loop.tag_names
+          expect_current_tag_is AIML::Tags::ListItem
+          parent_tag = context.open_tags[-2]
+          expect_tag_is parent_tag, AIML::Tags::Condition
+          add_tag AIML::Tags::Loop.new(parent_tag)
+
         when *AIML::Tags::Learn.tag_names
           add_tag AIML::Tags::Learn.new(learner)
 
@@ -60,8 +59,8 @@ module AIML::Listeners
           expect_open AIML::Tags::Learn
           add_tag AIML::Tags::Eval.new
 
-        when *AIML::Tags::ReadVariable.tag_names
-          add_to_tag AIML::Tags::ReadVariable.new(local_name, attributes)
+        when *AIML::Tags::Get.tag_names
+          add_to_tag AIML::Tags::Get.new(local_name, attributes)
 
         when *AIML::Tags::ReadProperty.tag_names
           add_to_tag AIML::Tags::ReadProperty.new(local_name, attributes)
@@ -77,7 +76,7 @@ module AIML::Listeners
       case current_tag
 
         when AIML::Tags::Condition
-          return if /^\s*$/ === text
+          return if /\A\s*\z/ === text
           attrs = {}
           attrs['name'] ||= current_tag.name if current_tag.name?
           attrs['value'] ||= current_tag.value if current_tag.value?
@@ -86,7 +85,7 @@ module AIML::Listeners
           add_to_tag li
 
         when AIML::Tags::Random
-          return if /^\s*$/ === text
+          return if /\A\s*\z/ === text
           li = AIML::Tags::ListItem.new
           li.add(text)
           add_to_tag li

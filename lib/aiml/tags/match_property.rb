@@ -6,16 +6,18 @@ module AIML
         [/^bot_\w+/, 'bot']
       end
 
-      attr_reader :name
+      def name(context=nil)
+        result = case local_name
+                   when 'bot'
+                     attributes["name"]
+                   when /^bot_(\w+)/
+                     $1
+                 end
+        context ? result.to_s(context) : result
+      end
 
-      def initialize(local_name=nil, attributes={})
-        @body = []
-        case local_name
-          when 'bot'
-            @name = attributes["name"] || "name"
-          when /^bot_(\w+)/
-            @name = $1
-        end
+      def name?
+        super || local_name =~ /^bot_(\w+)/
       end
 
       def ==(other)
@@ -28,11 +30,11 @@ module AIML
       end
 
       def match(pattern, graph, context)
-        if name.nil? or name.empty?
+        unless name?
           raise AIML::MissingAttribute, "'bot' tag must have 'name' attribute"
         end
         return unless pattern.key_matchable?
-        value = context.get_property(name)
+        value = context.get_property(name(context))
         path = AIML::Tags::Pattern.process(value)
         if path.zip(pattern.path).reduce(true) { |memo, pair| memo && pair[0] == pair[1] }
           graph.get_reaction(pattern.suffix(path.size))
@@ -40,7 +42,7 @@ module AIML
       end
 
       def inspect
-        "match property #{name}"
+        "match property #{name.inspect}"
       end
 
     end

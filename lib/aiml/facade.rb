@@ -5,13 +5,15 @@ require_relative 'map_parser'
 require_relative 'history'
 require_relative 'utils'
 require_relative 'tags/pattern'
+require_relative 'normalizer_parser'
+require_relative 'denormalizer_parser'
 
 module AIML
   class Facade
 
-    INPUT_SEPARATOR = /\.\s+|\?\s+|!\s+|\n/
+    INPUT_SEPARATOR = /(?<!\sdr|\smr|\sms|\smrs|\se\.g|\si\.e|\setc|\ssr|\sjr|\sst|\save|\srd|\sdept|\smt|\svs|\sinc|\sp\.s|\sa\.m|\sp\.m)(\.\s+|\?\s+|!\s+|\n)/i
 
-    attr_reader :context, :graph_master, :parser, :set_parser, :map_parser, :default_properties
+    attr_reader :context, :graph_master, :parser, :set_parser, :map_parser, :default_properties, :normalizer, :denormalizer
 
     def initialize(cache = nil)
       @graph_master       = GraphMaster.new
@@ -20,12 +22,14 @@ module AIML
       @map_parser         = MapParser.new(@graph_master)
       @context            = History.new
       @default_properties = Hash.new
+      @normalizer_parser         = NormalizerParser.new(@graph_master)
+      @denormalizer_parser       = DenormalizerParser.new(@graph_master)
     end
 
     def learn(files)
-      FileFinder::find_aiml(files).each{|f| File.open(f,'r'){|io| @parser.parse io} }
-      FileFinder::find_sets(files).each{|f| File.open(f,'r'){|io| @set_parser.parse io} }
-      FileFinder::find_maps(files).each{|f| File.open(f,'r'){|io| @map_parser.parse io} }
+      FileFinder::find_aiml(files).each{|f| File.open(f,'r'){|io| parser.parse io} }
+      FileFinder::find_sets(files).each{|f| File.open(f,'r'){|io| set_parser.parse io} }
+      FileFinder::find_maps(files).each{|f| File.open(f,'r'){|io| map_parser.parse io} }
 
       FileFinder::find_properties(files).each do |f|
         File.open(f,'r') do |io|
@@ -34,6 +38,15 @@ module AIML
           context.load_properties(properties)
         end
       end
+
+      if normalizations = FileFinder::find_normalizations(files)
+        File.open(normalizations,'r'){ |io| normalizer_parser.parse io }
+      end
+
+      if denormalizations = FileFinder::find_denormalizations(files)
+        File.open(denormalizations,'r'){ |io| denormalizer_parser.parse io }
+      end
+
     end
 
     def loading(theCacheFilename='cache')
@@ -65,6 +78,7 @@ module AIML
       input = process_input(raw_stimulus)
       context.update_input(input)
       response = input.map do |sentence|
+        sentence = graph_master.normalize(sentence)
         pattern = AIML::Tags::Pattern.new(sentence: sentence, that: context.that, topic: context.topic)
         graph_master.render_reaction(pattern, context)
       end

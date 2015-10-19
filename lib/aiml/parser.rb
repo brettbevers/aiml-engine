@@ -47,6 +47,14 @@ module AIML
       }
       ### end category
 
+      ### attribute
+      @parser.listen(AIML::Tags::Attribute.tag_names) { |uri, local_name, qname, attributes|
+        t = AIML::Tags::Attribute.new
+        context.tag.attributes[local_name] = t
+        context.push_tag t
+      }
+      ### end attribute
+
       ### learn / eval
       @parser.listen(AIML::Tags::Learn.tag_names) { |uri, local_name, qname, attributes|
         if attributes['filename']
@@ -86,8 +94,8 @@ module AIML
         context.add_to_tag "\n"
       }
 
-      @parser.listen(AIML::Tags::Input.tag_names - %w{ that }) { |uri, local_name, qname, attributes|
-        context.add_to_tag AIML::Tags::Input.new(attributes)
+      @parser.listen(AIML::Tags::Input.tag_names) { |uri, local_name, qname, attributes|
+        context.add_to_tag AIML::Tags::Input.new(local_name, attributes)
       }
 
       @parser.listen(%w{ date }) {
@@ -115,6 +123,10 @@ module AIML
       @parser.listen(:characters, AIML::Tags::Sentence.tag_names) {
         context.add_tag(AIML::Tags::Sentence.new)
       }
+
+      @parser.listen(AIML::Tags::Explode.tag_names) {
+        context.add_tag(AIML::Tags::Explode.new)
+      }
       ### end string manipulation
 
       ### version
@@ -132,7 +144,7 @@ module AIML
 
       ### pattern / that / template
       @parser.listen(Listeners::Pattern.new(context, learner))
-      @parser.listen(Listeners::That.new(context))
+      @parser.listen(Listeners::That.new(context, learner))
       @parser.listen(Listeners::Template.new(context, learner))
       ### end pattern / that / template
 

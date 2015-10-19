@@ -32,7 +32,8 @@ module AIML
       str
     end
 
-    def learn(category, path)
+    def learn(category, path=nil)
+      path ||= category.path.dup
       branch = path.shift
       return @template = category.template unless branch
       children[branch].learn(category, path)
@@ -95,13 +96,13 @@ module AIML
         return reaction if reaction
       end
 
-      if match_sets?
-        reaction = match_set(pattern)
+      if match_properties?
+        reaction = match_property(pattern)
         return reaction if reaction
       end
 
-      if match_properties?
-        reaction = match_property(pattern)
+      if match_sets?
+        reaction = match_set(pattern)
         return reaction if reaction
       end
 
@@ -203,7 +204,7 @@ module AIML
     end
 
     def variables
-      @variables ||= children.keys.select { |key| key.is_a? AIML::Tags::MatchVariable }
+      @variables ||= children.keys.select { |key| key.is_a? AIML::Tags::MatchPredicate }
     end
 
     def match_variables?

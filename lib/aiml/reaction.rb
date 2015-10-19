@@ -33,6 +33,10 @@ module AIML
       @depth -= interval
     end
 
+    def to_s(context)
+      template.to_s(context)
+    end
+
   end
 
 end

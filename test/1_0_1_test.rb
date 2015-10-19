@@ -29,7 +29,7 @@ describe "Facade" do
     assert_equal('TEST SPACE', @robot.get_reaction('that tag test'))
     assert_equal('TEST SPACE', @robot.get_reaction('justbeforethat tag test'))
     assert_equal('ok.', @robot.get_reaction('think test i am male'))
-    assert_equal('.female.female', @robot.get_reaction('test set'))
+    assert_equal('UNKNOWN.female.female', @robot.get_reaction('test set'))
     assert_equal('You sound very attractive.', @robot.get_reaction('I AM BLOND'))
     assert_equal('You sound very attractive.', @robot.get_reaction('I AM RED'))
     assert_equal('You sound very attractive.', @robot.get_reaction('I AM BLACK'))

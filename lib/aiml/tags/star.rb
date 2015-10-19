@@ -6,12 +6,7 @@ module AIML
         %w{ topicstar thatstar star }
       end
 
-      attr_reader :star, :index
-
-      def initialize(star_name, attributes={})
-        @star = star_name
-        @index = attributes['index'] ? attributes['index'].to_i : 1
-      end
+      alias_method :star, :local_name
 
       def to_s(context=nil)
         context.send(star, index)
@@ -19,6 +14,11 @@ module AIML
 
       def inspect
         "#{star} #{index}"
+      end
+
+      def index(context=nil)
+        return 1 unless index?
+        context ? attributes['index'].to_s(context).to_i : attributes['index'].to_i
       end
 
     end

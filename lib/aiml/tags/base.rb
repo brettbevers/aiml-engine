@@ -30,5 +30,46 @@ module AIML::Tags
       "#{self.class.tag_names.first} -> #{body.map(&:inspect).join(' ')}"
     end
 
+    def name(context=nil)
+      get_attribute('name', context)
+    end
+
+    def name?
+      attribute_present?('name')
+    end
+
+    def var(context=nil)
+      get_attribute('var', context)
+    end
+
+    def var?
+      attribute_present?('var')
+    end
+
+    def value(context=nil)
+      get_attribute('value', context)
+    end
+
+    def value?
+      attribute_present?('value')
+    end
+
+    def index(context=nil)
+      get_attribute('index', context)
+    end
+
+    def index?
+      attribute_present?('index')
+    end
+
+    def attribute_present?(key)
+      attributes.key?(key)
+    end
+
+    def get_attribute(key, context=nil)
+      return unless result = attributes[key]
+      context ? result.to_s(context) : result
+    end
+
   end
 end

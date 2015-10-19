@@ -4,10 +4,6 @@ module AIML
 
       alias_method :items, :body
 
-      def initialize(attributes)
-        @body = []
-      end
-
       def to_s(context)
         body[rand(body.length)].to_s(context)
       end

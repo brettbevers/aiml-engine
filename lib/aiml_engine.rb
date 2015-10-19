@@ -17,7 +17,9 @@ module AIML
   class TagMismatch < TagError; end
   class MissingParentTag < TagError; end
   class MissingAttribute < TagError; end
+  class InvalidAttributes < TagError; end
   class ExceededEndOfPattern < StandardError; end
+  class NoOpenScope < StandardError; end
 
   @@config = ::AIML::Config.new
 

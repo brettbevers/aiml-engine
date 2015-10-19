@@ -29,8 +29,8 @@ describe "Alice" do
         "Two is a good number of THUMBS."
     ].must_include @alice.get_reaction("Humans have two THUMBS")
 
-    @alice.get_reaction("Did Shakespeare write your favorite play?").must_equal "I don't know if Shakespeare WRITE my FAVORITE PLAY, but I heard he smoked cannabis."
-    @alice.get_reaction("what do you call my mother's brother").must_equal "Is this a joke? I don't know, what do you call your MOTHER'S BROTHER?"
+    @alice.get_reaction("Did Shakespeare write your favorite play?").must_equal "I don't know if Shakespeare     WRITE my FAVORITE PLAY, but I heard he smoked cannabis."
+    @alice.get_reaction("what do you call my mother's brother").must_equal "Is this a joke?  I don't know, what do you call your MOTHER'S BROTHER?"
 
     @alice.get_reaction("YOU ARE THINKING").must_equal "I am a thinking machine."
     @alice.get_reaction("does that mean you are thinking?").must_equal "I am a thinking machine."
@@ -43,14 +43,14 @@ describe "Alice" do
     @alice.get_reaction("you are entertaining").must_equal "How much would you pay for me?"
     @alice.get_reaction("you are purely entertaining").must_equal "How much would you pay for me?"
 
-    @alice.get_reaction("DO YOU KNOW PANDORABOTS").must_equal "Pandorabots is an online web hosting service for AIML chat robots. Check out http://www.pandorabots.com."
+    @alice.get_reaction("DO YOU KNOW PANDORABOTS").must_equal "Pandorabots is an online web hosting service for AIML chat robots.  Check out http://www.pandorabots.com."
 
     @alice.get_reaction("I have a dog named 'Winston'.")
     @alice.get_reaction("you should remember").must_equal "Don't worry I will remember it."
     @alice.get_reaction("WHAT WILL YOU REMEMBER").must_equal "you have a dog named 'Winston'."
 
     [
-        "I am doing very well. How are you client ?",
+        "I am doing very well. How are you UNKNOWN ?",
         "I am functioning within normal parameters.",
         "Everything is going extremely well.",
         "Fair to partly cloudy.",
@@ -64,13 +64,15 @@ describe "Alice" do
     @alice.get_reaction("I have a dog named 'Winston'.")
     @alice.get_reaction("bad answer").must_equal "Would you like to teach me a new answer to \"I have a dog named 'Winston'.\"?"
     @alice.get_reaction("yes").must_equal "OK, what should I have said?"
-    @alice.get_reaction("That is a cool name!").must_equal "\"That is a cool name!...\"? Does this depend on me having just said, \"Yes I am inspired by Commander Data's artificial personality.\"?"
+    @alice.get_reaction("That is a cool name!").must_equal "\"That is a cool name!...\"?\r
+\r
+\t\r
+\tDoes this depend on me having just said, \"Yes I am inspired by Commander Data's artificial personality.\"?"
     @alice.get_reaction("no").must_equal "I'll try to remember to respond, \"That is a cool name!\" when you say, \"I have a dog named 'Winston'.\""
     @alice.get_reaction("I have a dog named 'Winston'.").must_equal "That is a cool name!"
 
     @alice.get_reaction("PLUTO IS A PLANET").must_equal "Yes."
     @alice.get_reaction("define argute")
-
   end
 
 

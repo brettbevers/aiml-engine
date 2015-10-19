@@ -5,12 +5,23 @@ require_relative 'node'
 module AIML
 
   class GraphMaster
-    attr_reader :graph, :sets, :maps
+    attr_reader :graph, :sets, :maps, :normalizer, :denormalizer, :char_aliases
+
+    CHAR_ALIASES = {
+        '*' => ' star ',
+        '#' => ' sharp ',
+        '$' => ' dollarsign ',
+        '_' => ' underscore ',
+        '^' => ' uparrow '
+    }
 
     def initialize
-      @graph = Node.new
-      @sets  = Node.new
-      @maps  = Node.new
+      @graph        = Node.new
+      @sets         = Node.new
+      @maps         = Node.new
+      @normalizer   = Node.new
+      @denormalizer = Node.new
+      @char_aliases = CHAR_ALIASES.dup
     end
 
     def merge(aCache)
@@ -18,15 +29,23 @@ module AIML
     end
 
     def learn(category)
-      graph.learn(category, category.path)
+      graph.learn(category)
     end
 
     def learn_set_element(element)
-      sets.learn(element, element.path)
+      sets.learn(element)
     end
 
     def learn_map_element(element)
-      maps.learn(element, element.path)
+      maps.learn(element)
+    end
+
+    def learn_normalizer_element(element)
+      @normalizer.learn(element)
+    end
+
+    def learn_denormalizer_element(element)
+      @denormalizer.learn(element)
     end
 
     def to_s
@@ -52,15 +71,34 @@ module AIML
     end
 
     def render(reaction, context=AIML::History.new)
-      result = []
       context.reactions.push reaction
       context.graph_masters.push self
-      reaction.template.each do |token|
-        result.push token.to_s(context)
-      end
+      result = reaction.to_s(context)
       context.reactions.pop
       context.graph_masters.pop
-      result.flatten.join.gsub(/\s+/,' ').strip
+      result
+    end
+
+    def normalize(str)
+      char_aliases.each do |k,v|
+        str = str.gsub(k,v)
+      end
+      str = str.upcase
+
+      path = AIML::SubstitutionElement.process(str)
+      result = []
+      until path.empty?
+        pattern = AIML::Tags::Pattern.new(path: path)
+        reaction = normalizer.get_reaction(pattern)
+        if reaction
+          result += reaction.template.body
+          path = path[reaction.depth..-1]
+        else
+          result << path.shift
+        end
+      end
+
+      result.flatten.join
     end
 
   end

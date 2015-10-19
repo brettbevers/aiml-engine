@@ -5,13 +5,18 @@ module AIML::Listeners
 
     include REXML::SAX2Listener
 
-    attr_reader :context
+    attr_reader :context, :learner
 
-    def initialize(context)
+    def initialize(context, learner)
       @context = context
+      @learner = learner
     end
 
     def characters(text)
+      # if /\A(\S*)\s*[\n\r]\s*\z/ === text
+      #   return unless $1
+      #   text = $1
+      # end
       add_to_tag text
     end
 
@@ -65,6 +70,14 @@ module AIML::Listeners
 
     def expect_current_tag_is_not(*klasses_and_tag_names)
       context.expect_tag_is_not(current_tag, *klasses_and_tag_names)
+    end
+
+    def expect_tag_is(tag, *klasses_and_tag_names)
+      context.expect_tag_is(tag, *klasses_and_tag_names)
+    end
+
+    def expect_tag_is_not(tag, *klasses_and_tag_names)
+      context.expect_tag_is_not(tag, *klasses_and_tag_names)
     end
 
     def expect_open(*klasses_and_tag_names)

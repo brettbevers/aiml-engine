@@ -51,8 +51,7 @@ Client: I admire robots like you.
       
  <category> 
   <pattern>test gender</pattern> 
-  <template><gender>he told to her to take a hike</gender> but
-            <gender>his ego was too much for her</gender></template> 
+  <template><gender>he told to her to take a hike</gender> but <gender>his ego was too much for her</gender></template>
  </category>
       
  <category> 
@@ -72,11 +71,9 @@ Client: I admire robots like you.
       
  <category> 
   <pattern>random test</pattern> 
-  <template>
-   <random>
+  <template><random>
    <li>A</li>
-   </random>
-  </template> 
+   </random></template>
  </category>
       
  <category> 
@@ -91,30 +88,26 @@ Client: I admire robots like you.
       
  <category> 
   <pattern>I AM BLOND</pattern> 
-  <template>You sound very
-   <condition name="gender" value="female">attractive.</condition>
-   <condition name="gender" value="male">handsome.</condition> 
-  </template> 
+  <template>You sound very <condition name="gender">
+  <li value="female">attractive.</li>
+  <li value="male">handsome.</li>
+  </condition></template>
  </category>
       
 <category> 
  <pattern>I AM RED</pattern> 
-  <template>You sound very 
-   <condition> 
+  <template>You sound very <condition>
     <li name="gender" value="female">attractive.</li> 
     <li name="gender" value="male">handsome.</li> 
-   </condition> 
-  </template> 
+   </condition></template>
  </category> 
 
 <category> 
  <pattern>I AM BLACK</pattern> 
-  <template>You sound very 
-   <condition name="gender"> 
+  <template>You sound very <condition name="gender">
     <li value="female">attractive.</li> 
     <li value="male">handsome.</li> 
-   </condition> 
-  </template> 
+   </condition></template>
  </category> 
 	
  <category>
@@ -196,7 +189,7 @@ Client: I admire robots like you.
       
  <category>
   <pattern>SPACE TEST</pattern>
-  <template>  TEST   SPACE  </template>
+  <template>TEST SPACE</template>
  </category>
 
  <!-- next three are test for * and _ -->

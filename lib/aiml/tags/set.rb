@@ -6,26 +6,45 @@ module AIML
         [/^set_*/, 'set']
       end
 
-      attr_reader :name
-      alias_method :value, :body
+      def name(context=nil)
+        n = case local_name
+              when 'set'
+                attributes['name']
+              when /^set_(\w+)/
+                $1
+            end
+        context ? n.to_s(context) : n
+      end
 
-      def initialize(local_name, attributes)
-        case local_name
-          when 'set'
-            @name = attributes['name']
-          when /^set_(\w+)/
-            @name = $1
-        end
-        @body = []
+      def name?
+        super || local_name =~ /^set_(\w+)/
       end
 
       def to_s(context)
-        if name.nil? or name.empty?
-          raise AIML::MissingAttribute, "'set' tag must have 'name' attribute"
-        end
+        validate_attributes!
         result = body.map { |token| token.to_s(context) }.join.strip
-        context.set(name, result)
+        if name?
+          context.set_predicate(name(context), result)
+        elsif var?
+          context.set_variable(var(context), result)
+        end
         return result
+      end
+
+      def inspect
+        if name?
+          "set predicate #{name.inspect}"
+        elsif var?
+          "set variable #{var.inspect}"
+        end
+      end
+
+      def validate_attributes!
+        if !(name? || var?)
+          raise AIML::MissingAttribute, "'set' tag must have either 'name' or 'var' attribute"
+        elsif name? && var?
+          raise AIML::InvalidAttributes, "'set' tag cannot have both 'name' and 'var' attributes"
+        end
       end
 
     end

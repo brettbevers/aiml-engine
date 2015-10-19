@@ -4,11 +4,11 @@ module AIML::Listeners
     def start_element(uri, local_name, qname, attributes)
       if AIML::Tags::That.tag_names.include?(local_name)
         if current_tag_is? AIML::Tags::Category
-          that = AIML::Tags::That.new
+          that = AIML::Tags::That.new(local_name, attributes)
           current_tag.that = that
           push_tag that
         elsif open_template?
-          add_tag AIML::Tags::That.new(attributes)
+          add_tag AIML::Tags::That.new(local_name, attributes)
         end
       end
     end

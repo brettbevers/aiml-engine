@@ -6,26 +6,29 @@ module AIML
         [/^bot_\w+/,'bot']
       end
 
-      attr_reader :name
+      def name(context=nil)
+        result = case local_name
+                   when 'bot'
+                     attributes["name"]
+                   when /^bot_(\w+)/
+                     $1
+                 end
+        context ? result.to_s(context) : result
+      end
 
-      def initialize(local_name, attributes={})
-        case local_name
-          when 'bot'
-            @name = attributes['name']
-          when /^bot_(.+)/
-            @name = $1
-        end
+      def name?
+        super || local_name =~ /^bot_(\w+)/
       end
 
       def to_s(context=nil)
-        if name.nil? or name.empty?
+        unless name?
           raise AIML::MissingAttribute, "'bot' tag must have 'name' attribute"
         end
-        context.get_property(name)
+        context.get_property(name(context))
       end
 
       def inspect
-        "read property #{name}"
+        "read property #{name.inspect}"
       end
     end
   end

@@ -185,9 +185,7 @@ Repeated Repeated
   <template><eval><get name="learntemplate"/></eval></template>
   </category>
 </learn>
-</think>
-Now you can ask me: "<get name="learnpattern"/>?"
-<think>
+</think> Now you can ask me: "<get name="learnpattern"/>?"<think>
 <set name="learnpattern">What does <star/> <map name="verb2sp2verb1sp"><star index="2"/></map></set>?
 <set name="learntemplate"><person><star index="3"/></person></set>.
 <learn>
@@ -196,8 +194,7 @@ Now you can ask me: "<get name="learnpattern"/>?"
   <template><eval><get name="learntemplate"/></eval></template>
   </category>
 </learn>
-</think>
-and "<get name="learnpattern"/>?"</template>
+</think> and "<get name="learnpattern"/>?"</template>
 </category>
 
 
@@ -224,27 +221,102 @@ and "<get name="learnpattern"/>?"</template>
 <set name="isanumber"><srai>ISANUMBER <star/></srai></set>
 <set name="isaname"><srai>ISANAME <star/></srai></set>
 </think>
-<condition name="isanumber">
-<li value="true"><srai>MY AGE IS <star/></srai></li>
+<condition>
+<li name="isanumber" value="true">Your age is <star/>.</li>
 <li>
-  <condition name="isaname">
-  <li value="true"><srai>MY NAME IS <star/></srai></li>
-  <li><srai>IAMRESPONSE</srai>
-  </li>
-  </condition>
+  <condition name="isaname" value="true">Your name is <star/>. </condition>
+  <condition name="isaname" value="false">Nope.</condition>
 </li>
 </condition>
 </template>
 </category>
 
-<category><pattern>IS * EQUALTO *</pattern>
+<category>
+<pattern>ISANUMBER <set>number</set></pattern>
+<template>true</template>
+</category>
+
+<category>
+<pattern>ISANUMBER *</pattern>
+<template>false</template>
+</category>
+
+<category>
+<pattern>ISANAME <set>name</set></pattern>
+<template>true</template>
+</category>
+
+<category>
+<pattern>ISANAME *</pattern>
+<template>false</template>
+</category>
+
+<category><pattern>TEST VAR</pattern>
 <template>
-<think><set name="temp"><star/></set></think>
-<condition name="temp">
-<li><value><star index="2"/></value> true</li>
-<li>false</li>
+<think>
+<set name="boundpredicate">some value</set>
+<set var="boundvar">something</set>
+</think>
+TEST VAR:
+unboundpredicate = <get name="unboundpredicate"/>.
+boundpredicate = <get name="boundpredicate"/>.
+unboundvar = <get var="unboundvar"/>.
+boundvar = <get var="boundvar"/>.
+<srai>TEST VAR SRAI</srai>
+</template>
+</category>
+
+<category><pattern>TEST VAR SRAI</pattern>
+<template>
+TEST VAR SRAI:
+unboundpredicate = <get name="unboundpredicate"/>.
+boundpredicate = <get name="boundpredicate"/>.
+unboundvar = <get var="unboundvar"/>.
+boundvar = <get var="boundvar"/>.
+</template>
+</category>
+
+<category>
+<pattern>COUNT TO <set>number</set></pattern>
+<template>
+<think><set name="count">0</set></think>
+<condition name="count">
+<li><value><star/></value></li>
+<li>
+<set name="count"><map><name>successor</name><get name="count"/></map></set> <loop/>
+</li>
 </condition>
 </template>
+</category>
+
+<category>
+<pattern>EXPLODE *</pattern>
+<template><explode><star/></explode>
+</template>
+</category>
+
+<category>
+<pattern>IMPLODE *</pattern>
+<template><star/></template>
+</category>
+<category>
+<pattern>IMPLODE * *</pattern>
+<template><star/><srai>IMPLODE <star index="2"/></srai></template>
+</category>
+
+<category>
+<pattern>NORMALIZE *</pattern>
+<template><normalize><star/></normalize></template>
+</category>
+
+<category>
+<pattern>NORMALIZE *</pattern>
+<template><normalize><star/></normalize></template>
+</category>
+
+<category>
+<pattern>DENORMALIZE THAT</pattern>
+<template><denormalize><that/></denormalize></template>
 </category>
 
 </aiml>

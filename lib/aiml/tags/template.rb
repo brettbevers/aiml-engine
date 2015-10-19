@@ -4,12 +4,14 @@ module AIML
 
       alias_method :value, :body
 
-      def map(&block)
-        body.map(&block)
+      def to_s(context)
+        context.scoped do
+         body.map{ |token| token.to_s(context) }.join.strip
+        end
       end
 
-      def each(&block)
-        body.each(&block)
+      def map(&block)
+        body.map(&block)
       end
 
       def size

@@ -31,7 +31,7 @@
 <template><set name="er">Christian Drossmann</set> hat mir Deutsch beigebracht.</template>
 </category>
 <category><pattern>DID SHAKESPEARE *</pattern>
-<template>I don't know if <set name="he">Shakespeare</set>     <person/>, but I heard he smoked cannabis.</template>
+<template>I don't know if <set name="he">Shakespeare</set><person/>, but I heard he smoked cannabis.</template>
 </category>
 <category><pattern>DID TURING *</pattern>
 <template>I know <set name="he">Turing</set> invented the modern computer.</template>

@@ -4,26 +4,34 @@ module AIML
 
       INDEX_PARSER = /^(\d+),?(\d+|\*)?/
 
-      attr_reader :first_index, :second_index
+      def self.tag_names
+        %w{ input request }
+      end
 
-      def initialize(attributes)
-        index = attributes['index'] || ''
+      def first_index(context=nil)
+        index = index(context) || ''
         INDEX_PARSER === index
-        @first_index  = $1 || 1
-        @second_index = $2 || 1
+        $1 || 1
+      end
+
+      def second_index(context=nil)
+        index = index(context) || ''
+        INDEX_PARSER === index
+        $2 || '*'
       end
 
       def to_s(context=nil)
-        input = context.get_stimulus(first_index.to_i)
-        if second_index == '*'
+        input = context.get_stimulus(first_index(context).to_i)
+        si = second_index(context)
+        if si == '*'
           input.join('. ')
         else
-          input[second_index.to_i-1]
+          input[si.to_i-1]
         end
       end
 
       def inspect
-        "input #{first_index},#{second_index} "
+        "input #{first_index.inspect},#{second_index.inspect} "
       end
 
     end

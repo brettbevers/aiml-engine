@@ -4,7 +4,7 @@ module AIML
   class History
 
     attr_accessor :topic
-    attr_reader :inputs, :responses, :environment, :properties, :reactions, :graph_masters
+    attr_reader :inputs, :responses, :predicates, :properties, :reactions, :graph_masters, :scopes
 
     def initialize(attrs={})
       @topic          = attrs[:topic]           || [AIML::DEFAULT]
@@ -12,8 +12,9 @@ module AIML
       @responses      = attrs[:responses]       || Array.new
       @reactions      = attrs[:reactions]       || Array.new
       @graph_masters  = attrs[:graph_masters]   || Array.new
-      @environment    = attrs[:environment]     || Hash.new
+      @predicates     = attrs[:predicates]      || Hash.new
       @properties     = attrs[:properties]      || Hash.new
+      @scopes         = attrs[:scopes]          || Array.new
     end
 
     def dump
@@ -22,7 +23,7 @@ module AIML
           inputs: inputs,
           responses: responses,
           reactions: reactions,
-          environment: environment,
+          predicates: predicates,
           properties: properties
       }
     end
@@ -55,25 +56,44 @@ module AIML
       end
     end
 
-    def get_variable(tag)
+    def get_predicate(tag)
       tag = tag.to_s
       if tag == 'topic'
         topic
-      elsif environment.key?(tag)
-        environment[tag]
+      elsif predicates.key?(tag)
+        predicates[tag]
       else
         AIML::UNKNOWN
       end
     end
 
-    def set(tag, value)
+    def get_variable(tag)
+      raise AIML::NoOpenScope unless current_scope
+      tag = tag.to_s
+      if current_scope.key?(tag)
+        return current_scope[tag]
+      else
+        AIML::UNKNOWN
+      end
+    end
+
+    def set_predicate(tag, value)
       case tag
         when 'topic'
           self.topic = AIML::Tags::Pattern.process(value)
         else
-          environment[tag.to_s] = value
+          predicates[tag.to_s] = value
       end
       return value
+    end
+
+    def set_variable(tag, value)
+      raise AIML::NoOpenScope unless current_scope
+      current_scope[tag.to_s] = value
+    end
+
+    def current_scope
+      scopes.first
     end
 
     def that(index=1)
@@ -99,23 +119,32 @@ module AIML
     end
 
     def male
-      environment[:gender] = 'male'
+      predicates[:gender] = 'male'
     end
 
     def female
-      environment[:gender] = 'female'
+      predicates[:gender] = 'female'
     end
 
     def update_response(sentences)
-      responses.unshift(sentences)
+      copy = Marshal.load(Marshal.dump(sentences))
+      responses.unshift(copy)
     end
 
     def update_input(sentences)
-      inputs.unshift(sentences)
+      copy = Marshal.load(Marshal.dump(sentences))
+      inputs.unshift(copy)
     end
 
     def get_stimulus(index)
       inputs[index]
+    end
+
+    def scoped
+      scopes.unshift Hash.new
+      result = yield if block_given?
+      scopes.shift
+      result
     end
 
   end

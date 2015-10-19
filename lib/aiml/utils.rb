@@ -1,3 +1,5 @@
+require 'find'
+
 module AIML
   module Cache
   def self.dumping(aFilename,theGraphMaster)
@@ -16,7 +18,7 @@ module AIML
   module FileFinder
     # Returns an array of aiml files recursively found
     def self.find(ext, files_and_dirs)
-      files_and_dirs = files_and_dirs.is_a?(String) ? [files_and_dirs] : files_and_dirs
+      files_and_dirs = files_and_dirs.is_a?(Array) ? files_and_dirs : [files_and_dirs]
       files = []
       files_and_dirs.each{|file|
         if File.file?(file) && (file  =~ /.*\.#{ext}$/)
@@ -26,6 +28,20 @@ module AIML
         files += find(ext, Dir.glob("#{file}/*"))
       }
       files
+    end
+
+    def self.find_file(basename, files_and_dirs)
+      files_and_dirs = files_and_dirs.is_a?(Array) ? files_and_dirs : [files_and_dirs]
+      files_and_dirs.each{|file_or_dir|
+        if File.file?(file_or_dir) && File.basename(file_or_dir) == basename
+          return file_or_dir
+        else
+          Find.find(file_or_dir) do |file|
+            return file if File.basename(file) == basename
+          end
+        end
+      }
+      nil
     end
 
     def self.find_aiml(files_and_dirs)
@@ -40,8 +56,12 @@ module AIML
       find(:set, files_and_dirs)
     end
 
-    def self.find_substitutions(files_and_dirs)
-      find(:substitutions, files_and_dirs)
+    def self.find_normalizations(files_and_dirs)
+      find_file("normal.substitutions", files_and_dirs)
+    end
+
+    def self.find_denormalizations(files_and_dirs)
+      find_file("denormal.substitutions", files_and_dirs)
     end
 
     def self.find_pdefaults(files_and_dirs)

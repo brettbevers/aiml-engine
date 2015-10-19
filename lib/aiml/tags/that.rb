@@ -5,15 +5,31 @@ module AIML
 
       INDEX_PARSER = /^(\d+),?(\d+|\*)?/
 
-      attr_reader :first_index, :second_index
       alias_method :path, :body
 
-      def initialize(attributes={})
-        @body = []
-        index = attributes['index'] || ''
+      def self.tag_names
+        %w{ that response }
+      end
+
+      def first_index(context=nil)
+        index = index(context) || ''
         INDEX_PARSER === index
-        @first_index  = $1 || 1
-        @second_index = $2 || 1
+        $1 || 1
+      end
+
+      def second_index(context=nil)
+        index = index(context) || ''
+        INDEX_PARSER === index
+        $2 || default_second_index
+      end
+
+      def default_second_index
+        case local_name
+          when 'response'
+            '*'
+          when 'that'
+            1
+        end
       end
 
       def add(object)
@@ -26,16 +42,17 @@ module AIML
       end
 
       def to_s(context=nil)
-        input = context.that(first_index.to_i)
-        if second_index == '*'
+        input = context.that(first_index(context).to_i)
+        si = second_index(context)
+        if si == '*'
           return input.join(' ')
         else
-          return input[second_index.to_i-1]
+          return input[si.to_i-1]
         end
       end
 
       def inspect
-        "that #{first_index},#{second_index} "
+        "that #{first_index.inspect},#{second_index.inspect} "
       end
 
     end
