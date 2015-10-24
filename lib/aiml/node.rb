@@ -40,7 +40,6 @@ module AIML
     end
 
     def get_reaction(pattern)
-
       if pattern.satisfied?(children)
         result = if children.key?("#") && children["#"].template
                    Reaction.new(children["#"].template)
@@ -80,7 +79,7 @@ module AIML
       end
 
       if children.key?("_")
-        reaction = match_wildcard(pattern, children["_"], greedy: true, min_match: 1)
+        reaction = match_wildcard(pattern, children["_"], min_match: 1)
         return reaction if reaction
       end
 
@@ -107,7 +106,7 @@ module AIML
       end
 
       if children.key?("^")
-        reaction = match_wildcard(pattern, children["^"], greedy: true)
+        reaction = match_wildcard(pattern, children["^"])
         return reaction if reaction
       end
 

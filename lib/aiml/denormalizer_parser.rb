@@ -1,4 +1,5 @@
 require_relative 'substitution_element'
+require 'json'
 
 module AIML
   class DenormalizerParser
@@ -10,7 +11,7 @@ module AIML
     end
 
     def parse(io)
-      denormalize = Hash[YAML::load(io)]
+      denormalize = JSON.load(io)
       denormalize.each do |key, value|
         next if key.empty?
         learner.learn_denormalizer_element AIML::SubstitutionElement.new(key, value)

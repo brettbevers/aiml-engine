@@ -16,6 +16,7 @@ Gem::Specification.new do |gem|
   gem.version       = AIML::VERSION
 
   gem.add_dependency 'engtagger'
+  gem.add_dependency 'activesupport'
 
   gem.add_development_dependency 'pry'
   gem.add_development_dependency 'pry-nav'

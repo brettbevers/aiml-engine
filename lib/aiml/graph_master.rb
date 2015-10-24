@@ -97,7 +97,22 @@ module AIML
           result << path.shift
         end
       end
+      result.flatten.join
+    end
 
+    def denormalize(str)
+      path = AIML::SubstitutionElement.process(str)
+      result = []
+      until path.empty?
+        pattern = AIML::Tags::Pattern.new(path: path)
+        reaction = denormalizer.get_reaction(pattern)
+        if reaction
+          result += reaction.template.body
+          path = path[reaction.depth..-1]
+        else
+          result << path.shift
+        end
+      end
       result.flatten.join
     end
 

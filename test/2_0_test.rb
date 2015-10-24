@@ -3,12 +3,21 @@ require 'pry-nav'
 require 'minitest/autorun'
 require 'date'
 require_relative '../lib/aiml_engine'
+require 'active_support/time'
 
 describe "AIML 2.0" do
 
   before do
     @robot = AIML::Facade.new
     @robot.learn('test/data/2_0_test')
+  end
+
+  it "tells time" do
+    @robot.get_reaction("What day is it?").must_equal Time.now.in_time_zone.strftime("%A")
+    @robot.get_reaction("What time zone is Arizona in?").must_equal "MST"
+    today = DateTime.now.beginning_of_day
+    days_to_x_mas = (DateTime.new(today.year,12,25,0,0,0,"-0700") - today).to_i
+    @robot.get_reaction("HOW MANY DAYS UNTIL CHRISTMAS?").must_equal "#{days_to_x_mas} days until Christmas."
   end
 
   it "parses sentences" do
@@ -41,8 +50,8 @@ describe "AIML 2.0" do
     @robot.get_reaction("keyword").must_equal "Found KEYWORD"
     @robot.get_reaction("sharptest foo").must_equal "#star = FOO"
     @robot.get_reaction("sharptest foo bar test").must_equal "#star = FOO BAR"
-    @robot.get_reaction("xyz abc carettest").must_equal "^star = XYZ ABC"
-    @robot.get_reaction("carettest").must_equal "^star = UNDEF"
+    @robot.get_reaction("xyz abc carettest").must_equal "caret star = XYZ ABC"
+    @robot.get_reaction("carettest").must_equal "caret star = UNDEF"
     @robot.get_reaction("carettest").must_equal "repeat"
     @robot.get_reaction("keyword").must_equal "Found KEYWORD"
     @robot.get_reaction("abc def keyword ghi jkl").must_equal "Found KEYWORD"
@@ -54,8 +63,8 @@ describe "AIML 2.0" do
     @robot.get_reaction("keyword").must_equal "Topic alice. Found KEYWORD"
     @robot.get_reaction("sharptest foo").must_equal "Topic alice. #star = FOO"
     @robot.get_reaction("sharptest foo bar test").must_equal "Topic alice. #star = FOO BAR"
-    @robot.get_reaction("xyz abc carettest").must_equal "Topic alice. ^star = XYZ ABC"
-    @robot.get_reaction("carettest").must_equal "Topic alice. ^star = UNDEF"
+    @robot.get_reaction("xyz abc carettest").must_equal "Topic alice. caret star = XYZ ABC"
+    @robot.get_reaction("carettest").must_equal "Topic alice. caret star = UNDEF"
     @robot.get_reaction("carettest").must_equal "repeat repeat"
     @robot.get_reaction("keyword").must_equal "Topic alice. Found KEYWORD"
     @robot.get_reaction("abc def keyword ghi jkl").must_equal "Topic alice. Found KEYWORD"
@@ -79,18 +88,17 @@ describe "AIML 2.0" do
   end
 
   it "substitutes" do
-    $stop = true
-    @robot.get_reaction("normalize callmom-info@pandorabots.com").must_equal "callmom dash info at pandorabots dot com"
-    @robot.get_reaction("denormalize that").must_equal "callmom-info@pandorabots.com"
-    @robot.get_reaction("(212)-333-4444").must_equal "212 dash 333 dash 4444"
-    @robot.get_reaction("denormalize that").must_equal "212-333-4444"
-    @robot.get_reaction("I can not hear you").must_equal "I can not hear you"
-    @robot.get_reaction("denormalize that").must_equal "I can't hear you"
+    @robot.get_reaction("denormalize CALLMOM DASH INFO AT PANDORABOTS DOT COM").must_equal "CALLMOM-INFO@PANDORABOTS.COM"
+    @robot.get_reaction("normalize that").must_equal "CALLMOM DASH INFO AT PANDORABOTS DOT COM"
+    @robot.get_reaction("denormalize LPAREN 212 RPAREN DASH 333 DASH 4444").must_equal "(212)-333-4444"
+    @robot.get_reaction("normalize that").must_equal "LPAREN 212 RPAREN  DASH 333 DASH 4444"
+    @robot.get_reaction("denormalize I CAN NOT HEAR YOU").must_equal "I CAN'T HEAR YOU"
+    @robot.get_reaction("normalize that").must_equal "I CAN NOT HEAR YOU"
   end
 
   it "explodes words" do
     @robot.get_reaction("Explode ABCDEF").must_equal "A B C D E F"
-    @robot.get_reaction("Explode Dr. Alan Turing").must_equal "D R A L A N T U R I N G"
+    @robot.get_reaction("Explode Dr. Alan Turing").must_equal "D O C T O R A L A N T U R I N G"
     @robot.get_reaction("Implode A B C D E F").must_equal "ABCDEF"
   end
 
@@ -107,16 +115,16 @@ describe "AIML 2.0" do
   end
 
   it "gets and sets local variables" do
-    @robot.get_reaction("TEST VAR").must_equal "TEST VAR:
-unboundpredicate = UNKNOWN.
-boundpredicate = some value.
-unboundvar = UNKNOWN.
-boundvar = something.
-TEST VAR SRAI:
-unboundpredicate = UNKNOWN.
-boundpredicate = some value.
-unboundvar = UNKNOWN.
-boundvar = UNKNOWN."
+    @robot.get_reaction("TEST VAR").must_equal "TEST VAR: " +
+"\nunboundpredicate = UNKNOWN. " +
+"\nboundpredicate = some value. " +
+"\nunboundvar = UNKNOWN. " +
+"\nboundvar = something. " +
+"\nTEST VAR SRAI: " +
+"\nunboundpredicate = UNKNOWN. " +
+"\nboundpredicate = some value. " +
+"\nunboundvar = UNKNOWN. " +
+"\nboundvar = UNKNOWN."
   end
 
   it "evaluates conditionals" do

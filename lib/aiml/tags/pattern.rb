@@ -168,7 +168,6 @@ module AIML::Tags
     end
 
     def self.process_string(str)
-      # binding.pry if $stop && !%w{UNDEF DEFAULT}.include?(str)
       return unless str
       str.strip.upcase.
           gsub(/\b[^a-zA-Z0-9'_*\$\^#-]+\b/,' ').

@@ -1,4 +1,5 @@
 require_relative 'substitution_element'
+require 'json'
 
 module AIML
   class NormalizerParser
@@ -10,7 +11,7 @@ module AIML
     end
 
     def parse(io)
-      normalize = Hash[YAML::load(io)]
+      normalize = JSON.load(io)
       normalize.each do |key, value|
         next if key.empty?
         if %w{* # $ _ ^}.include?(key)

@@ -57,11 +57,11 @@ module AIML
     end
 
     def self.find_normalizations(files_and_dirs)
-      find_file("normal.substitutions", files_and_dirs)
+      find_file("normal.substitution", files_and_dirs)
     end
 
     def self.find_denormalizations(files_and_dirs)
-      find_file("denormal.substitutions", files_and_dirs)
+      find_file("denormal.substitution", files_and_dirs)
     end
 
     def self.find_pdefaults(files_and_dirs)

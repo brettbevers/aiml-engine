@@ -1,4 +1,5 @@
 require_relative 'map_element'
+require 'json'
 
 module AIML
   class MapParser
@@ -11,7 +12,7 @@ module AIML
 
     def parse(io)
       map_name = File.basename(io.path, '.map')
-      map = Hash[YAML::load(io)]
+      map = JSON.load(io)
       map.each do |key, value|
         next if key.empty?
         learner.learn_map_element AIML::MapElement.new(map_name, key, value)

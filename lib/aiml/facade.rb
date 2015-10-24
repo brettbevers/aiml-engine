@@ -13,7 +13,7 @@ module AIML
 
     INPUT_SEPARATOR = /(?<!\sdr|\smr|\sms|\smrs|\se\.g|\si\.e|\setc|\ssr|\sjr|\sst|\save|\srd|\sdept|\smt|\svs|\sinc|\sp\.s|\sa\.m|\sp\.m)(\.\s+|\?\s+|!\s+|\n)/i
 
-    attr_reader :context, :graph_master, :parser, :set_parser, :map_parser, :default_properties, :normalizer, :denormalizer
+    attr_reader :context, :graph_master, :parser, :set_parser, :map_parser, :default_properties, :normalizer_parser, :denormalizer_parser
 
     def initialize(cache = nil)
       @graph_master       = GraphMaster.new
@@ -75,11 +75,11 @@ module AIML
     end
 
     def get_reaction(raw_stimulus)
-      input = process_input(raw_stimulus)
-      context.update_input(input)
-      response = input.map do |sentence|
-        sentence = graph_master.normalize(sentence)
-        pattern = AIML::Tags::Pattern.new(sentence: sentence, that: context.that, topic: context.topic)
+      context.update_input( split_input raw_stimulus )
+      response = process_input(raw_stimulus).map do |sentence|
+        # sentence = sentence.gsub(/\W+/,' ')
+        that = context.that.map{ |sentence| graph_master.normalize(sentence) }
+        pattern = AIML::Tags::Pattern.new(sentence: sentence, that: that, topic: context.topic)
         graph_master.render_reaction(pattern, context)
       end
       context.update_response(response)
@@ -90,12 +90,17 @@ module AIML
       @graph_master.to_s
     end
 
-    def self.process_input(raw_stimulus)
-      raw_stimulus.split(INPUT_SEPARATOR).map{ |s| s.strip.empty? ? nil : s.strip }.compact
+    def self.split_input(input)
+      input.split(INPUT_SEPARATOR)
+    end
+
+    def split_input(input)
+      self.class.split_input(input)
     end
 
     def process_input(raw_stimulus)
-      self.class.process_input(raw_stimulus)
+      input = graph_master.normalize(raw_stimulus)
+      self.class.split_input(input)
     end
 
   end

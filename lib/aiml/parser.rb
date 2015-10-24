@@ -98,10 +98,6 @@ module AIML
         context.add_to_tag AIML::Tags::Input.new(local_name, attributes)
       }
 
-      @parser.listen(%w{ date }) {
-        context.add_to_tag(AIML::Tags::Sys_Date.new)
-      }
-
       @parser.listen(%w{ size }) {
         context.add_to_tag(AIML::Tags::Size.new)
       }

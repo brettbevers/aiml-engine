@@ -6,7 +6,7 @@ module AIML
 
     def initialize(key, value)
       @key      = key
-      @value    = value
+      @value    = value.upcase
       @path     = process(key) + [AIML::RETURN]
     end
 
@@ -17,7 +17,7 @@ module AIML
     end
 
     def self.process(str)
-      str.each_char.to_a
+      str.upcase.each_char.to_a
     end
 
     def process(str)

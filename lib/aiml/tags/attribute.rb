@@ -3,7 +3,7 @@ module AIML
     class Attribute < Base
 
       def self.tag_names
-        %w{ name var value index }
+        %w{ name var value index format style from to }
       end
 
       def inspect

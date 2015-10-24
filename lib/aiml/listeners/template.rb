@@ -34,9 +34,6 @@ module AIML::Listeners
           object = local_name == 'sr' ? AIML::Tags::Star.new('star') : nil
           add_tag AIML::Tags::Srai.new(object)
 
-        when *AIML::Tags::Command.tag_names
-          add_tag AIML::Tags::Command.new
-
         when *AIML::Tags::ListItem.tag_names
           if current_tag_is? AIML::Tags::Condition
             attributes['name'] ||= current_tag.name if current_tag.name?
@@ -67,11 +64,24 @@ module AIML::Listeners
 
         when *AIML::Tags::Map.tag_names
           add_tag AIML::Tags::Map.new(learner, attributes)
+
+        when *AIML::Tags::Normalize.tag_names
+          add_tag AIML::Tags::Normalize.new(learner, attributes)
+
+        when *AIML::Tags::Denormalize.tag_names
+          add_tag AIML::Tags::Denormalize.new(learner, attributes)
+
+        when *AIML::Tags::Date.tag_names
+          add_to_tag AIML::Tags::Date.new(local_name, attributes)
+
+        when *AIML::Tags::Interval.tag_names
+          add_tag AIML::Tags::Interval.new(local_name, attributes)
       end
     end
 
     def characters(text)
       return unless open_template? && !current_tag_is?(AIML::Tags::Category)
+      text = text.gsub(/[\s\n\r]+/,' ')
 
       case current_tag
 

@@ -97,7 +97,7 @@ module AIML
     end
 
     def that(index=1)
-      responses[index-1] || UNDEF
+      responses[index-1] || [ UNDEF ]
     end
 
     def star(index)
@@ -127,12 +127,12 @@ module AIML
     end
 
     def update_response(sentences)
-      copy = Marshal.load(Marshal.dump(sentences))
+      copy = copy(sentences)
       responses.unshift(copy)
     end
 
     def update_input(sentences)
-      copy = Marshal.load(Marshal.dump(sentences))
+      copy = copy(sentences)
       inputs.unshift(copy)
     end
 
@@ -145,6 +145,10 @@ module AIML
       result = yield if block_given?
       scopes.shift
       result
+    end
+
+    def copy(obj)
+      Marshal.load(Marshal.dump(obj))
     end
 
   end

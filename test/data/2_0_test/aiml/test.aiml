@@ -46,16 +46,16 @@ Really not founded
 </category>
 
 <category><pattern>^ CARETTEST</pattern>
-<that>^star = UNDEF</that>
+<that>caret star equals UNDEF</that>
 <template>repeat</template>
 </category>
 
 <category><pattern>^ CARETTEST</pattern>
-<template>^star = <star/></template>
+<template>caret star = <star/></template>
 </category>
 
 <category><pattern>^ CARETTEST</pattern>
-<that>Topic alice. ^star = UNDEF</that>
+<that>Topic alice. caret star equals UNDEF</that>
 <template>Not found</template>
 </category>
 
@@ -116,16 +116,16 @@ Repeated Repeated
 </category>
 
 <category><pattern>^ CARETTEST</pattern>
-<template>Topic alice. ^star = <star/></template>
+<template>Topic alice. caret star = <star/></template>
 </category>
 
 <category><pattern>^ CARETTEST</pattern>
-<that>Topic alice. ^star = UNDEF</that>
+<that>Topic alice. caret star equals UNDEF</that>
 <template>repeat repeat</template>
 </category>
 
 <category><pattern>^ CARETTEST</pattern>
-<that>^star = UNDEF</that>
+<that>caret star equals UNDEF</that>
 <template>really not found</template>
 </category>
 
@@ -258,21 +258,21 @@ Repeated Repeated
 <set var="boundvar">something</set>
 </think>
 TEST VAR:
-unboundpredicate = <get name="unboundpredicate"/>.
-boundpredicate = <get name="boundpredicate"/>.
-unboundvar = <get var="unboundvar"/>.
-boundvar = <get var="boundvar"/>.
-<srai>TEST VAR SRAI</srai>
+<br/>unboundpredicate = <get name="unboundpredicate"/>.
+<br/>boundpredicate = <get name="boundpredicate"/>.
+<br/>unboundvar = <get var="unboundvar"/>.
+<br/>boundvar = <get var="boundvar"/>.
+<br/><srai>TEST VAR SRAI</srai>
 </template>
 </category>
 
 <category><pattern>TEST VAR SRAI</pattern>
 <template>
 TEST VAR SRAI:
-unboundpredicate = <get name="unboundpredicate"/>.
-boundpredicate = <get name="boundpredicate"/>.
-unboundvar = <get var="unboundvar"/>.
-boundvar = <get var="boundvar"/>.
+<br/>unboundpredicate = <get name="unboundpredicate"/>.
+<br/>boundpredicate = <get name="boundpredicate"/>.
+<br/>unboundvar = <get var="unboundvar"/>.
+<br/>boundvar = <get var="boundvar"/>.
 </template>
 </category>
 
@@ -310,13 +310,35 @@ boundvar = <get var="boundvar"/>.
 </category>
 
 <category>
-<pattern>NORMALIZE *</pattern>
-<template><normalize><star/></normalize></template>
+<pattern>DENORMALIZE *</pattern>
+<template><denormalize> <star/> </denormalize></template>
 </category>
 
 <category>
-<pattern>DENORMALIZE THAT</pattern>
-<template><denormalize><that/></denormalize></template>
+<pattern>NORMALIZE THAT</pattern>
+<template><normalize><that/></normalize></template>
+</category>
+
+<category>
+<pattern>what day is it</pattern>
+<template><date format="%A" /></template>
+</category>
+
+<category>
+<pattern>What time zone is Arizona in</pattern>
+<template><date format="%Z" timezone="-7" /></template>
+</category>
+
+<category>
+<pattern>HOW MANY DAYS UNTIL CHRISTMAS</pattern>
+<template>
+<interval>
+<format>%B %d</format>
+<style>days</style>
+<from><date format="%B %d"/></from>
+<to>December 25</to>
+</interval> days until Christmas.
+</template>
 </category>
 
 </aiml>
