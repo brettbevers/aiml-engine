@@ -8,10 +8,12 @@ require_relative 'tags/pattern'
 require_relative 'normalizer_parser'
 require_relative 'denormalizer_parser'
 
+require 'json'
+
 module AIML
   class Facade
 
-    INPUT_SEPARATOR = /(?<!\sdr|\smr|\sms|\smrs|\se\.g|\si\.e|\setc|\ssr|\sjr|\sst|\save|\srd|\sdept|\smt|\svs|\sinc|\sp\.s|\sa\.m|\sp\.m)(\.\s+|\?\s+|!\s+|\n)/i
+    INPUT_SEPARATOR = /(?<!\sdr|\smr|\sms|\smrs|\se\.g|\si\.e|\setc|\ssr|\sjr|\sst|\save|\srd|\sdept|\smt|\svs|\sinc|\sp\.s|\sa\.m|\sp\.m)(\.)\s+|(\?)\s+|(!)\s+|\n/i
 
     attr_reader :context, :graph_master, :parser, :set_parser, :map_parser, :default_properties, :normalizer_parser, :denormalizer_parser
 
@@ -33,7 +35,7 @@ module AIML
 
       FileFinder::find_properties(files).each do |f|
         File.open(f,'r') do |io|
-          properties = Hash[YAML::load(io)]
+          properties = Hash[JSON.load(io)]
           default_properties.merge! properties
           context.load_properties(properties)
         end
@@ -76,13 +78,13 @@ module AIML
 
     def get_reaction(raw_stimulus)
       context.update_input( split_input raw_stimulus )
-      response = process_input(raw_stimulus).map do |sentence|
-        # sentence = sentence.gsub(/\W+/,' ')
+      response = process_input(raw_stimulus).map { |sentence|
         that = context.that.map{ |sentence| graph_master.normalize(sentence) }
         pattern = AIML::Tags::Pattern.new(sentence: sentence, that: that, topic: context.topic)
         graph_master.render_reaction(pattern, context)
-      end
-      context.update_response(response)
+      }.compact
+      response_update = response.map{ |item| split_input(item) }.flatten
+      context.update_response(response_update)
       return response.join(' ')
     end
 
@@ -91,7 +93,11 @@ module AIML
     end
 
     def self.split_input(input)
-      input.split(INPUT_SEPARATOR)
+      result = []
+      input.split(INPUT_SEPARATOR).each_slice(2) do |sentence, punctuation|
+        result << sentence + ( punctuation || '' )
+      end
+      result
     end
 
     def split_input(input)

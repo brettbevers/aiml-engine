@@ -64,6 +64,10 @@ module AIML
           end
         end
       }
+      @parser.listen(AIML::Tags::Eval.tag_names) { |uri, local_name, qname, attributes|
+        context.expect_open AIML::Tags::Learn
+        context.add_tag AIML::Tags::Eval.new
+      }
       ### end learn / eval
 
       ### gender / person / person2
@@ -102,28 +106,6 @@ module AIML
         context.add_to_tag(AIML::Tags::Size.new)
       }
       ### end self-terminating tags
-
-      ### string manipulation
-      @parser.listen(:characters, AIML::Tags::UpperCase.tag_names) {
-        context.add_tag(AIML::Tags::UpperCase.new)
-      }
-
-      @parser.listen(:characters, AIML::Tags::LowerCase.tag_names) {
-        context.add_tag(AIML::Tags::LowerCase.new)
-      }
-
-      @parser.listen(:characters, AIML::Tags::Formal.tag_names) {
-        context.add_tag(AIML::Tags::Formal.new)
-      }
-
-      @parser.listen(:characters, AIML::Tags::Sentence.tag_names) {
-        context.add_tag(AIML::Tags::Sentence.new)
-      }
-
-      @parser.listen(AIML::Tags::Explode.tag_names) {
-        context.add_tag(AIML::Tags::Explode.new)
-      }
-      ### end string manipulation
 
       ### version
       @parser.listen(%w{ version }) {
@@ -196,6 +178,10 @@ module AIML
 
       def open_that?
         open? AIML::Tags::That
+      end
+
+      def open_eval?
+        open? AIML::Tags::Eval
       end
 
       def open?(*klasses_or_tag_names)

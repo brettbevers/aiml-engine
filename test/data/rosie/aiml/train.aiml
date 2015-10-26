@@ -1354,7 +1354,7 @@ Ok, I will remember <get var="a1"/> <get var="thing1"/> are <get var="thing2"/>.
 <category><pattern>BAD ANSWER</pattern>
 <template><think><set name="newpattern"><input index="2"/></set></think>
 OK.  You said "<input index="2"/>" and I replied "<response/>".
-What should I say instead?</template>
+ What should I say instead?</template>
 </category>
 <category><pattern>SHE _</pattern><that>WHAT SHOULD I SAY INSTEAD</that>
 <template><srai>LEARN NEW RESPONSE She <star/></srai></template>

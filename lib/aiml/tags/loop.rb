@@ -2,18 +2,14 @@ module AIML
   module Tags
     class Loop < Base
 
-      def self.tag_names
-        ['loop']
-      end
-
       attr_reader :condition
 
-      def initialize(condition)
+      def initialize(condition=nil)
         @condition = condition
       end
 
       def to_s(context)
-        condition.to_s(context).strip
+        condition.to_s(context)
       end
 
       def inspect

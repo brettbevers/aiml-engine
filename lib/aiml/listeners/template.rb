@@ -10,12 +10,12 @@ module AIML::Listeners
         return
       end
 
-      return unless open_template?
+      return unless open_template? && ( !open_pattern? || open_eval? )
 
       case local_name
 
         when *AIML::Tags::Star.tag_names
-          add_tag AIML::Tags::Star.new(local_name, attributes)
+          add_to_tag AIML::Tags::Star.new(local_name, attributes)
 
         when *AIML::Tags::Random.tag_names
           attributes['name'] ||= local_name
@@ -47,14 +47,10 @@ module AIML::Listeners
           expect_current_tag_is AIML::Tags::ListItem
           parent_tag = context.open_tags[-2]
           expect_tag_is parent_tag, AIML::Tags::Condition
-          add_tag AIML::Tags::Loop.new(parent_tag)
+          add_to_tag AIML::Tags::Loop.new(parent_tag)
 
         when *AIML::Tags::Learn.tag_names
           add_tag AIML::Tags::Learn.new(learner)
-
-        when *AIML::Tags::Eval.tag_names
-          expect_open AIML::Tags::Learn
-          add_tag AIML::Tags::Eval.new
 
         when *AIML::Tags::Get.tag_names
           add_to_tag AIML::Tags::Get.new(local_name, attributes)
@@ -76,34 +72,28 @@ module AIML::Listeners
 
         when *AIML::Tags::Interval.tag_names
           add_tag AIML::Tags::Interval.new(local_name, attributes)
+
+        when *AIML::Tags::UpperCase.tag_names
+          add_tag AIML::Tags::UpperCase.new
+
+        when *AIML::Tags::LowerCase.tag_names
+          add_tag AIML::Tags::LowerCase.new
+
+        when *AIML::Tags::Formal.tag_names
+          add_tag AIML::Tags::Formal.new
+
+        when *AIML::Tags::Sentence.tag_names
+          add_tag AIML::Tags::Sentence.new
+
+        when *AIML::Tags::Explode.tag_names
+          add_tag AIML::Tags::Explode.new
       end
     end
 
     def characters(text)
       return unless open_template? && !current_tag_is?(AIML::Tags::Category)
-      text = text.gsub(/[\s\n\r]+/,' ')
-
-      case current_tag
-
-        when AIML::Tags::Condition
-          return if /\A\s*\z/ === text
-          attrs = {}
-          attrs['name'] ||= current_tag.name if current_tag.name?
-          attrs['value'] ||= current_tag.value if current_tag.value?
-          li = AIML::Tags::ListItem.new(attrs)
-          li.add(text)
-          add_to_tag li
-
-        when AIML::Tags::Random
-          return if /\A\s*\z/ === text
-          li = AIML::Tags::ListItem.new
-          li.add(text)
-          add_to_tag li
-
-        else
-          super
-
-      end
+      text = text.gsub(/[\n\r]+/,'').gsub(/\s+/,' ')
+      super
     end
 
     def end_element(uri, local_name, qname)

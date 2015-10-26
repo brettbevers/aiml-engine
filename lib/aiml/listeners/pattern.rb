@@ -11,7 +11,7 @@ module AIML::Listeners
         push_tag pattern
       end
 
-      return unless open_pattern?
+      return unless open_pattern? && !open_eval?
 
       case local_name
         when *AIML::Tags::MatchSet.tag_names

@@ -10,7 +10,7 @@ module AIML
         if value?
           return body.map{ |token| token.to_s(context) }.join if compare_values(context)
         else
-          body.each do |item|
+          body.select { |token| token.is_a? AIML::Tags::ListItem }.each do |item|
             return item.to_s(context) unless item.value?
             return item.to_s(context) if compare_values(context, item)
           end

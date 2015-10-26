@@ -34,7 +34,7 @@ describe "Facade" do
     assert_equal('The sentence test', @robot.get_reaction('sentence test'))
     assert_equal('The Formal Test', @robot.get_reaction('formal test'))
     assert_equal('A', @robot.get_reaction('random test'))
-    assert_equal('random test.formal test', @robot.get_reaction('test input'))
+    assert_equal('test input.random test', @robot.get_reaction('test input'))
     assert_equal(
         'she told to him to take a hike but her ego was too much for him',
         @robot.get_reaction('test gender'))

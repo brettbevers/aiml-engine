@@ -3240,7 +3240,7 @@
 <template><srai>it refers to <star/></srai></template>
 </category>
 <category><pattern>TEST THAT</pattern>
-<template>Client: <input index="2"/>     <br/>  Robot:  <that index="2,1"/>     <br/>  Client: <input index="1"/>     <br/>  Robot: <that index="1,1"/>     <br/>  Client: TEST THAT<br/></template>
+<template>Client: <input index="2"/>     <br/>  Robot:  <that index="2,1"/>     <br/>  Client: <input index="2"/>     <br/>  Robot: <that index="1,1"/>     <br/>  Client: TEST THAT<br/></template>
 </category>
 <category><pattern>NICK</pattern>
 <that>WHAT CAN I CALL YOU</that>
@@ -3828,7 +3828,7 @@
 </category>
 <category><pattern>*</pattern>
 <that>WHO TOLD YOU THAT</that>
-<template><person/> said <input index="1"/>?</template>
+<template><person/> said <input index="2"/>?</template>
 </category>
 <category><pattern>*</pattern>
 <that>WHO SAID IT IS</that>

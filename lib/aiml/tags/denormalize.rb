@@ -2,9 +2,7 @@ module AIML
   module Tags
     class Denormalize < Base
 
-      attr_reader :graph_master
-
-      def initialize(graph_master, attributes)
+      def initialize(graph_master=nil, attributes={})
         @attributes   = attributes
         @graph_master = graph_master
         @body         = []

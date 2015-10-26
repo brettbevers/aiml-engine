@@ -71,7 +71,7 @@
 <template><srai>REMOVENILS <star/></srai></template>
 </category>
 <category><pattern>REMOVENILS NIL</pattern>
-<template><template/></template>
+<template></template>
 </category>
 <category><pattern>LASTLETTER *</pattern>
 <template>The last letter of <star/> is: <srai>LASTITEM <explode><star/></explode></srai></template>
@@ -132,8 +132,8 @@ lower = <set var="lower"><srai>SMALLEROF <star index="2"/> <star index="4"/></sr
 upper = <set var="upper"><srai>LARGEROF <star index="2"/> <star index="4"/></srai></set>
 <set var="lilist">
 <condition var="lower">
-  <li><value><get var="upper"/></value> <li><get var="upper"/></li></li>
-  <li><li><get var="lower"/></li> <think><set var="lower"><map name="successor"><get var="lower"/></map></set></think> <loop/></li>
+  <li><value><get var="upper"/></value><get var="upper"/></li>
+  <li><get var="lower"/><think><set var="lower"><map name="successor"><get var="lower"/></map></set></think><loop/></li>
 </condition>
 </set>
 </think>
@@ -292,7 +292,7 @@ upper = <set var="upper"><srai>LARGEROF <star index="2"/> <star index="4"/></sra
 <template><srai>IMPLODE <srai>RANDOMCHAR</srai><srai>RANDOMCHAR</srai><srai>RANDOMCHAR</srai><srai>RANDOMCHAR</srai><srai>RANDOMCHAR</srai><srai>RANDOMCHAR</srai><srai>RANDOMCHAR</srai><srai>RANDOMCHAR</srai></srai></template>
 </category>
 <category><pattern>IMPLODE</pattern>
-<template><template/></template>
+<template></template>
 </category>
 <category><pattern>IMPLODE *</pattern>
 <template><star/></template>

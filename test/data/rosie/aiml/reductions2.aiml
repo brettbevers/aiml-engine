@@ -2677,7 +2677,7 @@
 <template><sr/></template>
 </category>
 <category><pattern>I WAS BORN IN *</pattern>
-<template><template><think><set name="isanumber"><srai>ISANUMBER <star/></srai></set></think> <condition name="isanumber"><li value="true"><srai>MY BIRTHDATE IS <star/></srai></li><li><srai>MY BIRTHPLACE IS <star/></srai></li></condition></template></template>
+<template><think><set name="isanumber"><srai>ISANUMBER <star/></srai></set></think> <condition name="isanumber"><li value="true"><srai>MY BIRTHDATE IS <star/></srai></li><li><srai>MY BIRTHPLACE IS <star/></srai></li></condition></template>
 </category>
 <category><pattern>IM NOT *</pattern>
 <template><srai>I AM NOT <star/></srai></template>

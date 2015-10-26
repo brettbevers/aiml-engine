@@ -21,29 +21,29 @@ describe "AIML 2.0" do
   end
 
   it "parses sentences" do
-    @robot.get_reaction("My favorite color is red.  My favorite color is Air Force blue.").
-        must_equal "RED is a nice color.  AIR FORCE BLUE is a nice color."
+    @robot.get_reaction("My favorite color is red. My favorite color is Air Force blue.").
+        must_equal "Red is a nice color. Air Force Blue is a nice color."
   end
 
   it "matches sets" do
-    @robot.get_reaction("My favorite color is red").must_equal "RED is a nice color."
-    @robot.get_reaction("My favorite color is Air Force blue").must_equal "AIR FORCE BLUE is a nice color."
+    @robot.get_reaction("My favorite color is red").must_equal "Red is a nice color."
+    @robot.get_reaction("My favorite color is Air Force blue").must_equal "Air Force Blue is a nice color."
     @robot.get_reaction("My favorite color is Paris in the spring").must_equal "I didn't recognize PARIS IN THE SPRING as a color."
     @robot.get_reaction("my favorite color is green").must_equal "Green is my favorite color too!"
     @robot.get_reaction("I like green").must_equal "Green is my favorite color too!"
-    @robot.get_reaction("I like violet blue").must_equal "VIOLET BLUE is a nice color."
+    @robot.get_reaction("I like violet blue").must_equal "Violet Blue is a nice color."
     @robot.get_reaction("I like violet blue").must_equal "Repeated"
-    @robot.get_reaction("My favorite color is red, Alice.").must_equal "RED is a nice color."
-    @robot.get_reaction("My favorite color is red").must_equal "Topic alice. RED is a nice color."
-    @robot.get_reaction("My favorite color is Air Force blue").must_equal "Topic alice. AIR FORCE BLUE is a nice color."
-    @robot.get_reaction("My favorite color is Paris in the spring").must_equal "Topic alice. I didn't recognize PARIS IN THE SPRING as a color."
-    @robot.get_reaction("my favorite color is green").must_equal "Topic alice. Green is my favorite color too!"
-    @robot.get_reaction("I like green").must_equal "Topic alice. Topic alice. Green is my favorite color too!"
-    @robot.get_reaction("I like violet blue").must_equal "Topic alice. Topic alice. VIOLET BLUE is a nice color."
-    @robot.get_reaction("I like air force blue").must_equal "Topic alice. Repeated Repeated"
-    @robot.get_reaction("My favorite color is red, Alice.").must_equal "Topic alice. Topic alice. RED is a nice color."
+    @robot.get_reaction("My favorite color is red, Alice.").must_equal "Red is a nice color."
+    @robot.get_reaction("My favorite color is red").must_equal "Topic alice Red is a nice color."
+    @robot.get_reaction("My favorite color is Air Force blue").must_equal "Topic alice Air Force Blue is a nice color."
+    @robot.get_reaction("My favorite color is Paris in the spring").must_equal "Topic alice I didn't recognize PARIS IN THE SPRING as a color."
+    @robot.get_reaction("my favorite color is green").must_equal "Topic alice Green is my favorite color too!"
+    @robot.get_reaction("I like green").must_equal "Topic alice Topic alice Green is my favorite color too!"
+    @robot.get_reaction("I like violet blue").must_equal "Topic alice Topic alice Violet Blue is a nice color."
+    @robot.get_reaction("I like air force blue").must_equal "Topic alice Repeated Repeated"
+    @robot.get_reaction("My favorite color is red, Alice.").must_equal "Topic alice Topic alice Red is a nice color."
 
-    @robot.get_reaction("My favorite color is red").must_equal "RED is a nice color."
+    @robot.get_reaction("My favorite color is red").must_equal "Red is a nice color."
   end
 
   it "matches #, ^ and $" do
@@ -58,20 +58,20 @@ describe "AIML 2.0" do
     @robot.get_reaction("abc keyword").must_equal "Found KEYWORD"
     @robot.get_reaction("keyword def").must_equal "Found KEYWORD"
     @robot.get_reaction("Who is Alice?").must_equal "I am Alice."
-    @robot.get_reaction("My favorite color is red, Alice.").must_equal "RED is a nice color."
+    @robot.get_reaction("My favorite color is red, Alice.").must_equal "Red is a nice color."
 
-    @robot.get_reaction("keyword").must_equal "Topic alice. Found KEYWORD"
-    @robot.get_reaction("sharptest foo").must_equal "Topic alice. #star = FOO"
-    @robot.get_reaction("sharptest foo bar test").must_equal "Topic alice. #star = FOO BAR"
-    @robot.get_reaction("xyz abc carettest").must_equal "Topic alice. caret star = XYZ ABC"
-    @robot.get_reaction("carettest").must_equal "Topic alice. caret star = UNDEF"
+    @robot.get_reaction("keyword").must_equal "Topic alice Found KEYWORD"
+    @robot.get_reaction("sharptest foo").must_equal "Topic alice #star = FOO"
+    @robot.get_reaction("sharptest foo bar test").must_equal "Topic alice #star = FOO BAR"
+    @robot.get_reaction("xyz abc carettest").must_equal "Topic alice caret star = XYZ ABC"
+    @robot.get_reaction("carettest").must_equal "Topic alice caret star = UNDEF"
     @robot.get_reaction("carettest").must_equal "repeat repeat"
-    @robot.get_reaction("keyword").must_equal "Topic alice. Found KEYWORD"
-    @robot.get_reaction("abc def keyword ghi jkl").must_equal "Topic alice. Found KEYWORD"
-    @robot.get_reaction("abc keyword").must_equal "Topic alice. Found KEYWORD"
-    @robot.get_reaction("keyword def").must_equal "Topic alice. Found KEYWORD"
-    @robot.get_reaction("Who is Alice?").must_equal "Topic alice. I am Alice."
-    @robot.get_reaction("My favorite color is red, Alice.").must_equal "Topic alice. Topic alice. RED is a nice color."
+    @robot.get_reaction("keyword").must_equal "Topic alice Found KEYWORD"
+    @robot.get_reaction("abc def keyword ghi jkl").must_equal "Topic alice Found KEYWORD"
+    @robot.get_reaction("abc keyword").must_equal "Topic alice Found KEYWORD"
+    @robot.get_reaction("keyword def").must_equal "Topic alice Found KEYWORD"
+    @robot.get_reaction("Who is Alice?").must_equal "Topic alice I am Alice."
+    @robot.get_reaction("My favorite color is red, Alice.").must_equal "Topic alice Topic alice Red is a nice color."
 
     @robot.get_reaction("keyword").must_equal "Found KEYWORD"
   end
@@ -115,15 +115,15 @@ describe "AIML 2.0" do
   end
 
   it "gets and sets local variables" do
-    @robot.get_reaction("TEST VAR").must_equal "TEST VAR: " +
-"\nunboundpredicate = UNKNOWN. " +
-"\nboundpredicate = some value. " +
-"\nunboundvar = UNKNOWN. " +
-"\nboundvar = something. " +
-"\nTEST VAR SRAI: " +
-"\nunboundpredicate = UNKNOWN. " +
-"\nboundpredicate = some value. " +
-"\nunboundvar = UNKNOWN. " +
+    @robot.get_reaction("TEST VAR").must_equal "TEST VAR:" +
+"\nunboundpredicate = UNKNOWN." +
+"\nboundpredicate = some value." +
+"\nunboundvar = UNKNOWN." +
+"\nboundvar = something." +
+"\nTEST VAR SRAI:" +
+"\nunboundpredicate = UNKNOWN." +
+"\nboundpredicate = some value." +
+"\nunboundvar = UNKNOWN." +
 "\nboundvar = UNKNOWN."
   end
 

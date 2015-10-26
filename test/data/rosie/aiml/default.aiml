@@ -1718,7 +1718,7 @@ I like to talk to people.
 <template>What did <person/>?</template>
 </category>
 <category><pattern>THAT WAS NOT A QUESTION *</pattern>
-<template>"<input index="1"/>" was not a question?  I see.<think>      <set name="it">       <set name="topic">        <star/>       </set>      </set>     </think></template>
+<template>"<input index="2"/>" was not a question?  I see.<think>      <set name="it">       <set name="topic">        <star/>       </set>      </set>     </think></template>
 </category>
 <category><pattern>THAT WAS NOT A *</pattern>
 <template><random>      <li>What was it?</li>      <li>What is a <person/>?</li>      <li>If that is not a <person/> then what is?</li>     </random>     <think>      <set name="it">       <set name="topic">        <person/>       </set>      </set>     </think></template>

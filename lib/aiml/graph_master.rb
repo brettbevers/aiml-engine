@@ -80,6 +80,7 @@ module AIML
     end
 
     def normalize(str)
+      return unless str
       char_aliases.each do |k,v|
         str = str.gsub(k,v)
       end
@@ -101,6 +102,7 @@ module AIML
     end
 
     def denormalize(str)
+      return unless str
       path = AIML::SubstitutionElement.process(str)
       result = []
       until path.empty?

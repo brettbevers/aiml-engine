@@ -2,9 +2,7 @@ module AIML
   module Tags
     class MatchSet < Base
 
-      attr_reader :graph_master
-
-      def initialize(graph_master)
+      def initialize(graph_master=nil)
         @graph_master = graph_master
         @body = []
       end

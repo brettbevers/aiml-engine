@@ -96,8 +96,23 @@ module AIML
       scopes.first
     end
 
-    def that(index=1)
-      responses[index-1] || [ UNDEF ]
+    def that(first_index=nil, second_index=nil)
+      first_index  ||= 1
+      second_index ||= 0
+      ary = responses[first_index.to_i-1]
+      return [ UNDEF ] unless ary
+      if second_index == '*'
+        ary
+      else
+        i = second_index.to_i-1
+        result = ary[i..i] || []
+        result.any? ? result : [ UNDEF ]
+      end
+    end
+
+    def get_stimulus(index=nil)
+      index  ||= 1
+      inputs[index.to_i-1] || UNDEF
     end
 
     def star(index)
@@ -127,17 +142,11 @@ module AIML
     end
 
     def update_response(sentences)
-      copy = copy(sentences)
-      responses.unshift(copy)
+      responses.unshift copy(sentences)
     end
 
     def update_input(sentences)
-      copy = copy(sentences)
-      inputs.unshift(copy)
-    end
-
-    def get_stimulus(index)
-      inputs[index]
+      @inputs = copy(sentences) + @inputs
     end
 
     def scoped

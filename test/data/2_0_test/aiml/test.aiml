@@ -15,7 +15,7 @@ Repeated
 </category>
 
 <category><pattern>MY FAVORITE COLOR IS <set>color</set></pattern>
-<that>Topic alice. Topic alice. VIOLET BLUE is a nice color.</that>
+<that>Topic alice Topic alice VIOLET BLUE is a nice color.</that>
 <template>
 Really not founded
 </template>
@@ -55,7 +55,7 @@ Really not founded
 </category>
 
 <category><pattern>^ CARETTEST</pattern>
-<that>Topic alice. caret star equals UNDEF</that>
+<that>Topic alice caret star equals UNDEF</that>
 <template>Not found</template>
 </category>
 
@@ -73,7 +73,7 @@ Really not founded
 
 <category><pattern>MY FAVORITE COLOR IS <set>color</set></pattern>
 <template>
-Topic alice. <set name="favoritecolor"><formal><star/></formal></set> is a nice color.
+Topic alice <set name="favoritecolor"><formal><star/></formal></set> is a nice color.
 </template>
 </category>
 
@@ -85,42 +85,42 @@ Not founded
 </category>
 
 <category><pattern>MY FAVORITE COLOR IS <set>color</set></pattern>
-<that>Topic alice. Topic alice. VIOLET BLUE is a nice color.</that>
+<that>Topic alice Topic alice VIOLET BLUE is a nice color.</that>
 <template>
 Repeated Repeated
 </template>
 </category>
 
 <category><pattern>MY FAVORITE COLOR IS *</pattern>
-<template>Topic alice. I didn't recognize <star/> as a color.</template>
+<template>Topic alice I didn't recognize <star/> as a color.</template>
 </category>
 
 <category><pattern>MY FAVORITE COLOR IS GREEN</pattern>
-<template>Topic alice. <set name="favoritecolor">Green</set> is my favorite color too!</template>
+<template>Topic alice <set name="favoritecolor">Green</set> is my favorite color too!</template>
 </category>
 
 <category><pattern>I LIKE <set>color</set></pattern>
-<template>Topic alice. <srai>MY FAVORITE COLOR IS <star/></srai></template>
+<template>Topic alice <srai>MY FAVORITE COLOR IS <star/></srai></template>
 </category>
 
 <category><pattern>SHARPTEST #</pattern>
-<template>Topic alice. #star = <star/></template>
+<template>Topic alice #star = <star/></template>
 </category>
 
 <category><pattern>SHARPTEST # TEST</pattern>
-<template>Topic alice. #star = <star/></template>
+<template>Topic alice #star = <star/></template>
 </category>
 
 <category><pattern># KEYWORD #</pattern>
-<template>Topic alice. Found KEYWORD</template>
+<template>Topic alice Found KEYWORD</template>
 </category>
 
 <category><pattern>^ CARETTEST</pattern>
-<template>Topic alice. caret star = <star/></template>
+<template>Topic alice caret star = <star/></template>
 </category>
 
 <category><pattern>^ CARETTEST</pattern>
-<that>Topic alice. caret star equals UNDEF</that>
+<that>Topic alice caret star equals UNDEF</that>
 <template>repeat repeat</template>
 </category>
 
@@ -131,12 +131,12 @@ Repeated Repeated
 
 <category>
 <pattern>_ ALICE</pattern>
-<template>Topic alice. <sr/><think><set_topic></set_topic></think></template>
+<template>Topic alice <sr/><think><set_topic></set_topic></think></template>
 </category>
 
 <category>
 <pattern>$WHO IS ALICE</pattern>
-<template>Topic alice. I am Alice.</template>
+<template>Topic alice I am Alice.</template>
 </category>
 
 </topic>

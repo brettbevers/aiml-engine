@@ -132,6 +132,29 @@ module AIML::Tags
       end
     end
 
+    def copy
+      attrs = {
+          sentence: (sentence.dup if sentence),
+          path:     (path.dup     if path),
+          that:     (that.dup     if that),
+          topic:    (topic.dup    if topic),
+          current_segment_type: current_segment_type
+      }
+      if stimulus
+        stimulus_copy = stimulus.map do |token|
+          if token.respond_to? :copy
+            token.copy
+          elsif token.respond_to? :dup
+            token.dup
+          else
+            token
+          end
+        end
+        attrs[:stimulus] = stimulus_copy
+      end
+      AIML::Tags::Pattern.new(attrs)
+    end
+
     def next_segment
       return @next_segment if @next_segment
       if start_context_segment?

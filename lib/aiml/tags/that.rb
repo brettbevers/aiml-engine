@@ -1,5 +1,4 @@
-module AIML
-  module Tags
+module AIML::Tags
 
     class That < Base
 
@@ -13,23 +12,12 @@ module AIML
 
       def first_index(context=nil)
         index = index(context) || ''
-        INDEX_PARSER === index
-        $1 || 1
+        $1 if INDEX_PARSER === index
       end
 
       def second_index(context=nil)
         index = index(context) || ''
-        INDEX_PARSER === index
-        $2 || default_second_index
-      end
-
-      def default_second_index
-        case local_name
-          when 'response'
-            '*'
-          when 'that'
-            1
-        end
+        $2 if INDEX_PARSER === index
       end
 
       def add(object)
@@ -42,13 +30,7 @@ module AIML
       end
 
       def to_s(context=nil)
-        input = context.that(first_index(context).to_i)
-        si = second_index(context)
-        if si == '*'
-          return input.join(' ')
-        else
-          return input[si.to_i-1]
-        end
+        context.that(first_index(context), second_index(context))
       end
 
       def inspect
@@ -57,5 +39,4 @@ module AIML
 
     end
 
-  end
 end

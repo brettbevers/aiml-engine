@@ -1,11 +1,10 @@
 module AIML::Tags
   class Learn < Base
 
-    attr_reader :learner
     alias_method :categories, :body
 
-    def initialize(learner)
-      @learner = learner
+    def initialize(graph_master=nil)
+      @graph_master = graph_master
       @body = []
     end
 
@@ -17,13 +16,13 @@ module AIML::Tags
 
     def to_s(context)
       body.each do |category|
-        category = Marshal::load(Marshal.dump(category))
+        category = category.copy
         %w{template that pattern}.each do |attr|
           next unless component = category.send(attr)
           render!(component.body, context)
         end
         category.pattern.reprocess_stimulus
-        learner.learn(category)
+        graph_master.learn(category)
       end
       return ''
     end

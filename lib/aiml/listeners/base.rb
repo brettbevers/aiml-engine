@@ -13,10 +13,6 @@ module AIML::Listeners
     end
 
     def characters(text)
-      # if /\A(\S*)\s*[\n\r]\s*\z/ === text
-      #   return unless $1
-      #   text = $1
-      # end
       add_to_tag text
     end
 
@@ -58,6 +54,10 @@ module AIML::Listeners
 
     def open_that?
       context.open_that?
+    end
+
+    def open_eval?
+      context.open_eval?
     end
 
     def current_tag_is?(*klasses_and_tag_names)

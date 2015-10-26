@@ -10,7 +10,7 @@ module AIML::Tags
       @tag_names = [ str ]
     end
 
-    attr_reader :body, :local_name, :attributes
+    attr_reader :body, :local_name, :attributes, :graph_master, :condition
 
     def initialize(local_name=nil, attributes={})
       @local_name = local_name
@@ -69,6 +69,39 @@ module AIML::Tags
     def get_attribute(key, context=nil)
       return unless result = attributes[key]
       context ? result.to_s(context) : result
+    end
+
+    def copy
+      self.class.new.tap do |result|
+        if body
+          body_copy = body.map do |token|
+            if token.respond_to? :copy
+              token.copy
+            elsif token.respond_to? :dup
+              token.dup
+            else
+              token
+            end
+          end
+          result.instance_variable_set(:@body, body_copy)
+        end
+        if attributes
+          attributes_copy = {}
+          attributes.each do |k, v|
+            attributes_copy[k] = if v.respond_to? :copy
+                                   v.copy
+                                 elsif v.respond_to? :dup
+                                   v.dup
+                                 else
+                                   v
+                                 end
+          end
+          result.instance_variable_set(:@attributes, attributes_copy)
+        end
+        result.instance_variable_set(:@local_name, local_name.dup) if local_name
+        result.instance_variable_set(:@graph_master, graph_master) if graph_master
+        result.instance_variable_set(:@condition, condition) if condition
+      end
     end
 
   end

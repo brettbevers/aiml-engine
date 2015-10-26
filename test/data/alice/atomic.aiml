@@ -713,7 +713,7 @@
 <template>Software can not die.<think><set name="it"><set name="topic">DIE</set></set></think></template>
 </category>
 <category><pattern>YOU SHOULD REMEMBER</pattern>
-<template><think><set name="it"><set name="memory"><set name="topic"><person2><input index="1"/></person2></set></set></set></think>Don't worry I will remember it.</template>
+<template><think><set name="it"><set name="memory"><set name="topic"><person2><input index="2"/></person2></set></set></set></think>Don't worry I will remember it.</template>
 </category>
 <category><pattern>YOU SHOULD</pattern>
 <template>I'll take that under advisement.</template>
@@ -1180,7 +1180,7 @@
 <template>Give me a hint.</template>
 </category>
 <category><pattern>TRY TO REMEMBER</pattern>
-<template><think>  <set name="it">   <set name="memory">    <set name="topic">     <person2>  <input index="1"/>     </person2>    </set>   </set>  </set> </think>Don't worry I will remember it.</template>
+<template><think>  <set name="it">   <set name="memory">    <set name="topic">     <person2>  <input index="2"/>     </person2>    </set>   </set>  </set> </think>Don't worry I will remember it.</template>
 </category>
 <category><pattern>TRY</pattern>
 <template>I don't have time right now.</template>
@@ -1673,7 +1673,7 @@
 <template>I like to get to the point.</template>
 </category>
 <category><pattern>THAT IS A COP OUT</pattern>
-<template>I said it because you said "<input index="1"/>".<think>  <set name="it">   <set name="topic">COP OUT</set>  </set> </think></template>
+<template>I said it because you said "<input index="2"/>".<think>  <set name="it">   <set name="topic">COP OUT</set>  </set> </think></template>
 </category>
 <category><pattern>THAT IS A COINCIDENCE</pattern>
 <template>An interesting one too.</template>
@@ -3274,7 +3274,7 @@
 <template>You said  "<input index="2"/>" .</template>
 </category>
 <category><pattern>WHAT DID I SAY</pattern>
-<template>You said  "<input index="1"/>" .</template>
+<template>You said  "<input index="2"/>" .</template>
 </category>
 <category><pattern>WHAT DID SHE SAY</pattern>
 <template>I don't thinks she wants me to repeat it.</template>
@@ -7373,7 +7373,7 @@
 <template>It seems that way to me too.</template>
 </category>
 <category><pattern>HOW OFTEN WHAT</pattern>
-<template><think>I asked because you said "<input index="1"/>".  <set name="it">   <set name="topic">WHAT</set>  </set> </think></template>
+<template><think>I asked because you said "<input index="2"/>".  <set name="it">   <set name="topic">WHAT</set>  </set> </think></template>
 </category>
 <category><pattern>HOW OFTEN DO I DO WHAT</pattern>
 <template>Fill in the blank.</template>
@@ -8293,10 +8293,10 @@
 <template>Don't worry <get name="name"/> I won't forget you.</template>
 </category>
 <category><pattern>REMEMBER THAT</pattern>
-<template><think>  <set name="it">   <set name="memory">    <set name="topic">     <person2>  <input index="1"/>     </person2>    </set>   </set>  </set> </think>Don't worry I will remember it.</template>
+<template><think>  <set name="it">   <set name="memory">    <set name="topic">     <person2>  <input index="2"/>     </person2>    </set>   </set>  </set> </think>Don't worry I will remember it.</template>
 </category>
 <category><pattern>REMEMBER</pattern>
-<template><think>  <set name="it">   <set name="memory">    <set name="topic">     <person2>  <input index="1"/>     </person2>    </set>   </set>  </set> </think>Don't worry I will remember it.</template>
+<template><think>  <set name="it">   <set name="memory">    <set name="topic">     <person2>  <input index="2"/>     </person2>    </set>   </set>  </set> </think>Don't worry I will remember it.</template>
 </category>
 <category><pattern>MAY I TEST YOU</pattern>
 <template>Go ahead. Ask me anything.</template>
